@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="FluxoPark: encontre estacionamentos próximos ao seu destino pela menor distância a pé.">
+	<title>FluxoPark | Estacionamento Dinâmico</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="paginaInicialMotorista.css">
+</head>
+<body>
+	<header class="site-header">
+		<a class="brand" href="." aria-label="FluxoPark início"><img class="brand-logo" src="RefsVisuais/FluxoPark%20-%20Logotipo%20(1).png" alt="Logotipo FluxoPark"><span class="brand-copy"><strong>FluxoPark</strong><small>Estacionamento Dinâmico</small></span></a>
+		<form class="destination-form" id="destination-form"><label for="destination">Digite o destino desejado:</label><div class="search-field"><input id="destination" name="destination" type="search" placeholder="Digite um endereço" autocomplete="off" aria-autocomplete="list" required><button type="submit" aria-label="Buscar estacionamentos" title="Buscar estacionamentos"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg></button></div><p class="form-hint" id="form-status" role="status">Selecione uma sugestão ou pressione Enter</p></form>
+		<button class="menu-button" id="menu-button" type="button" aria-label="Abrir menu" aria-expanded="false" title="Abrir menu"><span></span><span></span><span></span></button>
+	</header>
+	<main class="workspace">
+		<aside class="results-panel" aria-labelledby="results-title"><div class="panel-heading"><div><p class="eyebrow">Busca inteligente</p><h1 id="results-title">Estacionamentos<br><em>próximos</em></h1></div><button class="filter-button" type="button" id="filter-button" aria-label="Abrir opções de ordenação" title="Abrir opções de ordenação"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"></path><circle cx="9" cy="6" r="2"></circle><circle cx="15" cy="12" r="2"></circle><circle cx="12" cy="18" r="2"></circle></svg></button></div><div class="result-meta"><span id="result-count">0 opções encontradas</span><label class="sort-label" for="sort-select">Ordenar por <select id="sort-select"><option value="walking">Proximidade a pé</option><option value="rating">Nota</option><option value="price">Preço</option></select></label></div><div class="results-list" id="results-list" aria-live="polite"><div class="empty-state"><span class="empty-icon">⌖</span><h2>Qual é o seu destino?</h2><p>Digite um endereço acima para encontrar estacionamentos e comparar a caminhada até ele.</p></div></div><div class="panel-footer"><span class="live-dot"></span><span>Dados de disponibilidade em tempo real</span></div></aside>
+		<section class="map-section" aria-label="Mapa dos estacionamentos"><div class="map-toolbar"><div class="map-title"><span class="maps-pin" aria-hidden="true">◆</span><span>Fornecido por Google Maps</span></div><button type="button" id="locate-button" class="icon-button" title="Usar minha localização" aria-label="Usar minha localização">◎</button></div><div class="map" id="map"><div class="map-fallback"><div class="map-grid"></div><span class="fallback-pin pin-a">●</span><span class="fallback-pin pin-b">●</span><span class="fallback-pin pin-c">●</span><div class="fallback-message"><strong>Mapa pronto para sua busca</strong><span>Os resultados aparecerão aqui</span></div></div></div><div class="map-legend"><span><i class="legend-dot target"></i> destino</span><span><i class="legend-dot parking"></i> estacionamento</span><span class="powered">Powered by Google</span></div></section>
+	</main>
+	<div class="toast" id="toast" role="alert"></div>
+	<script src="config.local.js"></script>
+	<script src="paginaInicialMotorista.js"></script>
+</body>
+</html>
