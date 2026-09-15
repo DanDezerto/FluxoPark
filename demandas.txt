@@ -1,0 +1,6 @@
+metas da semana:
+*colocar o react
+*melhorar o front
+*projetar banco de dados
+*fazer a página de reserva + pagamento
+*dividir os afazeres
