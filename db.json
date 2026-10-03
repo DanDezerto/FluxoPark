@@ -1,0 +1,248 @@
+{
+  "parkings": [
+    {
+      "id": "park-abc",
+      "googlePlaceId": "demo-park-abc",
+      "name": "Estacionamento ABC",
+      "address": "Rua das Flores, 120, São Paulo - SP",
+      "partner": true,
+      "rating": 4.8,
+      "hourlyRates": {
+        "Comum": 18,
+        "Coberta": 24,
+        "Acessível": 18
+      },
+      "toleranceMinutes": 15
+    },
+    {
+      "id": "park-def",
+      "googlePlaceId": "demo-park-def",
+      "name": "Estacionamento DEF",
+      "address": "Avenida Central, 845, São Paulo - SP",
+      "partner": true,
+      "rating": 4.6,
+      "hourlyRates": {
+        "Comum": 15,
+        "Coberta": 20,
+        "Acessível": 15
+      },
+      "toleranceMinutes": 10
+    },
+    {
+      "id": "park-ghi",
+      "googlePlaceId": "demo-park-ghi",
+      "name": "Estacionamento GHI",
+      "address": "Rua do Comércio, 42, São Paulo - SP",
+      "partner": true,
+      "rating": 4.5,
+      "hourlyRates": {
+        "Comum": 22,
+        "Coberta": 28,
+        "Acessível": 22
+      },
+      "toleranceMinutes": 15
+    },
+    {
+      "id": "park-jkl",
+      "googlePlaceId": "demo-park-jkl",
+      "name": "Estacionamento JKL",
+      "address": "Alameda Santos, 300, São Paulo - SP",
+      "partner": true,
+      "rating": 4.3,
+      "hourlyRates": {
+        "Comum": 20,
+        "Coberta": 26,
+        "Acessível": 20
+      },
+      "toleranceMinutes": 15
+    },
+    {
+      "id": "park-mno",
+      "googlePlaceId": "demo-park-mno",
+      "name": "Estacionamento MNO",
+      "address": "Rua Pamplona, 56, São Paulo - SP",
+      "partner": true,
+      "rating": 4.7,
+      "hourlyRates": {
+        "Comum": 16,
+        "Coberta": 22,
+        "Acessível": 16
+      },
+      "toleranceMinutes": 10
+    },
+    {
+      "id": "park-pqr",
+      "googlePlaceId": "demo-park-pqr",
+      "name": "Estacionamento PQR",
+      "address": "Avenida Nove de Julho, 410, São Paulo - SP",
+      "partner": true,
+      "rating": 4.2,
+      "hourlyRates": {
+        "Comum": 12,
+        "Coberta": 18,
+        "Acessível": 12
+      },
+      "toleranceMinutes": 20
+    }
+  ],
+  "spots": [
+    {
+      "id": "abc-01",
+      "parkingId": "park-abc",
+      "label": "A01",
+      "type": "Comum"
+    },
+    {
+      "id": "abc-02",
+      "parkingId": "park-abc",
+      "label": "A02",
+      "type": "Comum"
+    },
+    {
+      "id": "abc-03",
+      "parkingId": "park-abc",
+      "label": "A03",
+      "type": "Comum"
+    },
+    {
+      "id": "abc-c01",
+      "parkingId": "park-abc",
+      "label": "C01",
+      "type": "Coberta"
+    },
+    {
+      "id": "abc-c02",
+      "parkingId": "park-abc",
+      "label": "C02",
+      "type": "Coberta"
+    },
+    {
+      "id": "abc-p01",
+      "parkingId": "park-abc",
+      "label": "P01",
+      "type": "Acessível"
+    },
+    {
+      "id": "def-01",
+      "parkingId": "park-def",
+      "label": "B01",
+      "type": "Comum"
+    },
+    {
+      "id": "def-02",
+      "parkingId": "park-def",
+      "label": "B02",
+      "type": "Comum"
+    },
+    {
+      "id": "def-c01",
+      "parkingId": "park-def",
+      "label": "D01",
+      "type": "Coberta"
+    },
+    {
+      "id": "def-p01",
+      "parkingId": "park-def",
+      "label": "P01",
+      "type": "Acessível"
+    },
+    {
+      "id": "ghi-01",
+      "parkingId": "park-ghi",
+      "label": "G01",
+      "type": "Comum"
+    },
+    {
+      "id": "ghi-02",
+      "parkingId": "park-ghi",
+      "label": "G02",
+      "type": "Comum"
+    },
+    {
+      "id": "ghi-c01",
+      "parkingId": "park-ghi",
+      "label": "E01",
+      "type": "Coberta"
+    },
+    {
+      "id": "ghi-p01",
+      "parkingId": "park-ghi",
+      "label": "P01",
+      "type": "Acessível"
+    },
+    {
+      "id": "jkl-01",
+      "parkingId": "park-jkl",
+      "label": "J01",
+      "type": "Comum"
+    },
+    {
+      "id": "jkl-02",
+      "parkingId": "park-jkl",
+      "label": "J02",
+      "type": "Comum"
+    },
+    {
+      "id": "jkl-c01",
+      "parkingId": "park-jkl",
+      "label": "JC01",
+      "type": "Coberta"
+    },
+    {
+      "id": "jkl-p01",
+      "parkingId": "park-jkl",
+      "label": "JP01",
+      "type": "Acessível"
+    },
+    {
+      "id": "mno-01",
+      "parkingId": "park-mno",
+      "label": "M01",
+      "type": "Comum"
+    },
+    {
+      "id": "mno-02",
+      "parkingId": "park-mno",
+      "label": "M02",
+      "type": "Comum"
+    },
+    {
+      "id": "mno-c01",
+      "parkingId": "park-mno",
+      "label": "MC01",
+      "type": "Coberta"
+    },
+    {
+      "id": "mno-p01",
+      "parkingId": "park-mno",
+      "label": "MP01",
+      "type": "Acessível"
+    },
+    {
+      "id": "pqr-01",
+      "parkingId": "park-pqr",
+      "label": "Q01",
+      "type": "Comum"
+    },
+    {
+      "id": "pqr-02",
+      "parkingId": "park-pqr",
+      "label": "Q02",
+      "type": "Comum"
+    },
+    {
+      "id": "pqr-c01",
+      "parkingId": "park-pqr",
+      "label": "QC01",
+      "type": "Coberta"
+    },
+    {
+      "id": "pqr-p01",
+      "parkingId": "park-pqr",
+      "label": "QP01",
+      "type": "Acessível"
+    }
+  ],
+  "reservations": [],
+  "reviews": []
+}

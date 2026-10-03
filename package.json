@@ -1,0 +1,23 @@
+{
+  "name": "fluxopark",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --config vite.config.js",
+    "build": "vite build --config vite.config.js",
+    "api": "json-server --watch db.json --port 3000",
+    "start": "npm run build && json-server --watch db.json --static ./dist --port 3000"
+  },
+  "devDependencies": {
+    "json-server": "0.17.4",
+    "vite": "^6.4.1"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@tanstack/react-query": "^5.90.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.62.0",
+    "zod": "^4.1.5"
+  }
+}
