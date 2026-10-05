@@ -9,7 +9,9 @@ export default defineConfig({
 			"/parkings": "http://localhost:3000",
 			"/spots": "http://localhost:3000",
 			"/reservations": "http://localhost:3000",
-			"/reviews": "http://localhost:3000"
+			"/reviews": "http://localhost:3000",
+			"/users": "http://localhost:3000",
+			"/parkingAccounts": "http://localhost:3000"
 		}
 	},
 	build: {
@@ -17,6 +19,12 @@ export default defineConfig({
 		emptyOutDir: true,
 		rollupOptions: {
 			input: {
+				index: resolve(__dirname, "FluxoPark", "index.html"),
+				loginUsuario: resolve(__dirname, "FluxoPark", "loginUsuario.html"),
+				cadastroUsuario: resolve(__dirname, "FluxoPark", "cadastroUsuario.html"),
+				contaUsuario: resolve(__dirname, "FluxoPark", "contaUsuario.html"),
+				loginEstacionamento: resolve(__dirname, "FluxoPark", "loginEstacionamento.html"),
+				cadastroEstacionamento: resolve(__dirname, "FluxoPark", "cadastroEstacionamento.html"),
 				paginaInicialMotorista: resolve(__dirname, "FluxoPark", "paginaInicialMotorista.html"),
 				paginaReserva: resolve(__dirname, "FluxoPark", "paginaReserva.html")
 			}

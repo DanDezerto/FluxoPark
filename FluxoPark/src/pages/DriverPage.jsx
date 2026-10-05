@@ -32,7 +32,7 @@ import "../../paginaInicialMotorista-react.css";
 			React.useEffect(() => {
 				const apiKey = window.FLUXOPARK_CONFIG?.googleMapsApiKey;
 				if (!apiKey) {
-					setMapsError("Google Maps sem configuração. A busca demonstrativa está disponível.");
+					setMapsError("Google Maps sem configuração. Copie public/config.example.js para public/config.local.js e informe sua chave de API.");
 					return;
 				}
 				window.initFluxoParkMap = async () => {
@@ -281,7 +281,9 @@ import "../../paginaInicialMotorista-react.css";
 			}
 
 			function reservationUrl(option) {
-				const params = new URLSearchParams({placeId:option.id, name:option.name, address:option.address});
+				const params = option.source === "local" && option.parkingId
+					? new URLSearchParams({parkingId:option.parkingId})
+					: new URLSearchParams({placeId:option.id, name:option.name, address:option.address});
 				return `paginaReserva.html?${params.toString()}`;
 			}
 

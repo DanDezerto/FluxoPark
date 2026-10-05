@@ -59,6 +59,21 @@ motorista durante os testes: nome, e-mail e celular enviados na reserva também
 são gravados nesse arquivo local. Para limpar reservas de teste, pare o
 servidor e substitua o conteúdo de `reservations` em `db.json` por `[]`.
 
+## Contas demonstrativas
+
+O cadastro de motorista grava perfis e veículos na coleção `users`; o cadastro
+de estacionamento grava a conta do responsável em `parkingAccounts` e associa
+os estacionamentos que ela pode manter. O login demonstrativo guarda apenas o
+ID da sessão no navegador. A senha é convertida em um resumo SHA-256 no cliente,
+mas isso **não é autenticação segura**: o json-server expõe as coleções e não
+aplica autorização. Use somente dados fictícios e nunca reutilize senhas reais.
+
+Após entrar como motorista, `contaUsuario.html` permite editar nome e celular,
+manter veículos e consultar reservas associadas ao e-mail. O login de parceiro
+abre a manutenção dos estacionamentos associados à conta. Para um serviço real,
+essas operações precisam migrar para um backend com armazenamento de senhas
+apropriado, sessão protegida e autorização no servidor.
+
 Na página inicial, o botão **Testar estacionamentos do json-server** carrega
 os parceiros e tarifas cadastrados na API. Essa lista é para testar os dados e
 links de reserva; ela não é filtrada geograficamente pelo destino e não mostra
@@ -86,10 +101,11 @@ IDs parceiros da página de busca continua sendo configurada em
 ## Google Maps
 
 A página do motorista carrega a chave local de
-`FluxoPark/public/config.local.js`, que é ignorado pelo Git. Para configurá-la,
-copie `FluxoPark/public/config.example.js` para esse nome e preencha
-`googleMapsApiKey` com sua chave. Esse arquivo local precisa existir para que o
-Vite o sirva durante o desenvolvimento e o inclua no build de produção.
+`FluxoPark/public/config.local.js`, que é ignorado pelo Git. Para configurá-la, copie `FluxoPark/public/config.example.js` para
+`FluxoPark/public/config.local.js` e preencha `googleMapsApiKey` com sua chave.
+Esse arquivo local precisa existir para que o Vite o sirva durante o
+desenvolvimento e o inclua no build de produção; ele está no `.gitignore` e não
+deve ser enviado ao repositório.
 
 Para usar o mapa e as buscas reais, configure uma chave válida do Google Maps
 Platform e habilite faturamento, Maps JavaScript API, Places API (New) e Routes

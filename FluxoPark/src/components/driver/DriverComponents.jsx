@@ -1,6 +1,8 @@
 import React from "react";
+import {readDemoSession} from "../../lib/demoAccounts.js";
 
 export function DriverHeader({query, onQueryChange, onSearch, menuOpen, onToggleMenu}) {
+			const driverSession = readDemoSession("driver");
 			return <header className="bg-[#1d2b52] text-white">
 				<div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-10 gap-y-5 px-5 py-6 sm:px-8 lg:min-h-[190px] lg:flex-nowrap lg:px-10">
 					<a href="paginaInicialMotorista.html" className="flex min-w-0 flex-1 items-center gap-4 text-white no-underline sm:gap-5" aria-label="FluxoPark início">
@@ -23,7 +25,13 @@ export function DriverHeader({query, onQueryChange, onSearch, menuOpen, onToggle
 						<span className="h-[5px] w-9 rounded-full bg-white sm:w-11"></span><span className="h-[5px] w-9 rounded-full bg-white sm:w-11"></span><span className="h-[5px] w-9 rounded-full bg-white sm:w-11"></span>
 					</button>
 				</div>
-				{menuOpen && <div className="border-t border-white/15 px-6 py-3 text-right text-sm text-white/80">Menu de navegação</div>}
+				{menuOpen && <nav aria-label="Acesso às contas" className="border-t border-white/15 bg-[#172444] px-5 py-3 sm:px-8 lg:px-10">
+					<div className="mx-auto flex max-w-[1500px] flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
+						<a href="loginUsuario.html" className="text-white/90 transition hover:text-white">Entrar como motorista</a>
+						{driverSession && <a href="contaUsuario.html" className="text-white/90 transition hover:text-white">Minha conta e reservas</a>}
+						<a href="loginEstacionamento.html" className="text-white/90 transition hover:text-white">Portal do estacionamento</a>
+					</div>
+				</nav>}
 			</header>;
 		}
 

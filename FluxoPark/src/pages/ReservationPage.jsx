@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, ReservationConfirmation, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker, TimeSlotPicker } from "../components/reservation/ReservationComponents.jsx";
+import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, PaymentStep, ReservationConfirmation, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker, TimeSlotPicker } from "../components/reservation/ReservationComponents.jsx";
 import { AppProviders } from "../providers/AppProviders.jsx";
 import { createReservation, readCollection } from "../lib/api.js";
 import { reservationSchema } from "../lib/reservationSchema.js";
@@ -48,6 +48,9 @@ import "../../paginaReserva.css";
 			const [confirmation, setConfirmation] = React.useState("");
 			const [submittedReservation, setSubmittedReservation] = React.useState(null);
 			const [isReviewing, setIsReviewing] = React.useState(false);
+			const [isPaying, setIsPaying] = React.useState(false);
+			const [paymentCode, setPaymentCode] = React.useState("");
+			const [isCompletingPayment, setIsCompletingPayment] = React.useState(false);
 			const [showLeaveConfirmation, setShowLeaveConfirmation] = React.useState(false);
 			const [formError, setFormError] = React.useState("");
 			const [selectedSpotId, setSelectedSpotId] = React.useState("");
@@ -66,6 +69,7 @@ import "../../paginaReserva.css";
 				onSuccess:savedReservation => {
 					setSubmittedReservation(savedReservation);
 					setConfirmation(savedReservation.code);
+					setIsPaying(false);
 					queryClient.invalidateQueries({queryKey:["reservations"]});
 				}
 			});
@@ -139,7 +143,7 @@ import "../../paginaReserva.css";
 				window.location.assign("paginaInicialMotorista.html");
 			}
 
-			async function submitReservation(formValues) {
+			async function submitReservation() {
 				if (!parking || !interval || !selectedSpotId) {
 					setFormError("Selecione um horário e uma vaga disponível para continuar.");
 					setIsReviewing(false);
@@ -174,8 +178,43 @@ import "../../paginaReserva.css";
 						return;
 					}
 					const code = `FP-${window.crypto?.randomUUID?.().slice(0, 8).toUpperCase() || Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+					setPaymentCode(code);
+					setFormError("");
+					setIsPaying(true);
+				} catch (error) {
+					console.error("Não foi possível confirmar a disponibilidade antes do pagamento.", error);
+					setFormError(error.message || "Não foi possível verificar a disponibilidade. Confira se a API local está em execução.");
+					setIsReviewing(false);
+				}
+			}
+
+			async function completePayment() {
+				if (!parking || !interval || !selectedSpotId || !paymentCode) {
+					setFormError("Não foi possível recuperar os dados da reserva. Volte e revise a solicitação.");
+					return;
+				}
+				const selectedSpot = spots.find(spot => spot.id === selectedSpotId);
+				if (!selectedSpot) {
+					setFormError("A vaga selecionada não está mais disponível. Volte e escolha outra.");
+					setIsPaying(false);
+					return;
+				}
+				setFormError("");
+				setIsCompletingPayment(true);
+				try {
+					const latestReservations = await queryClient.fetchQuery({
+						queryKey:["reservations"],
+						queryFn:() => readCollection("reservations"),
+						staleTime:0
+					});
+					if (!isSpotAvailable(selectedSpot, interval, latestReservations)) {
+						setFormError("A vaga acabou de ser ocupada durante o pagamento. Escolha outro horário ou vaga.");
+						setIsPaying(false);
+						setIsReviewing(false);
+						return;
+					}
 					const reservation = {
-						code,
+						code:paymentCode,
 						parkingId: parking.id,
 						parkingName: parking.name,
 						spotId: selectedSpot.id,
@@ -196,9 +235,27 @@ import "../../paginaReserva.css";
 					};
 					await reservationMutation.mutateAsync(reservation);
 				} catch (error) {
-					console.error("Não foi possível registrar a reserva na API local.", error);
+					console.error("Não foi possível registrar a reserva simulada na API local.", error);
 					setFormError(error.message || "Não foi possível salvar a reserva. Confira se a API local está em execução.");
+				} finally {
+					setIsCompletingPayment(false);
 				}
+			}
+
+			if (isPaying) {
+				return <PaymentStep
+					paymentMethod={paymentMethod}
+					price={price}
+					parkingName={parkingName}
+					reservationTime={reservationTime}
+					spotType={spotType}
+					spotLabel={spots.find(spot => spot.id === selectedSpotId)?.label}
+					paymentCode={paymentCode}
+					onBack={() => { setIsPaying(false); setFormError(""); }}
+					onComplete={completePayment}
+					isSubmitting={isCompletingPayment || reservationMutation.isPending}
+					error={formError}
+				/>;
 			}
 
 			if (confirmation) {
@@ -276,8 +333,8 @@ import "../../paginaReserva.css";
 									price={price}
 									onEdit={() => setIsReviewing(false)}
 								/>}
-								<button type="submit" disabled={isLoading || Boolean(parkingError) || isSubmitting} className="mt-1 min-h-12 rounded-lg bg-[#7c3aed] px-5 py-3 font-semibold text-white transition hover:bg-[#6d28d9] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2">{isSubmitting ? "Salvando na API local..." : isReviewing ? "Confirmar solicitação (pagamento simulado)" : "Revisar solicitação"}</button>
-								<p className="text-center text-xs leading-5 text-[#758098]">A API local salva a reserva e considera a vaga ocupada no período. O pagamento é simulado; não há cobrança real.</p>
+								<button type="submit" disabled={isLoading || Boolean(parkingError) || isSubmitting} className="mt-1 min-h-12 rounded-lg bg-[#7c3aed] px-5 py-3 font-semibold text-white transition hover:bg-[#6d28d9] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2">{isSubmitting ? "Verificando disponibilidade..." : isReviewing ? "Ir para pagamento" : "Revisar solicitação"}</button>
+								<p className="text-center text-xs leading-5 text-[#758098]">A reserva só será registrada após a etapa demonstrativa de pagamento. Nenhuma cobrança real será feita.</p>
 							</form>
 						</section>
 

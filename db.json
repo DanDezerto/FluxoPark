@@ -83,6 +83,20 @@
         "Acessível": 12
       },
       "toleranceMinutes": 20
+    },
+    {
+      "id": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "name": "estacionamento coxinha",
+      "address": "rua coxinha, 123",
+      "googlePlaceId": null,
+      "partner": true,
+      "rating": 5,
+      "hourlyRates": {
+        "Comum": 1,
+        "Coberta": 2,
+        "Acessível": 3
+      },
+      "toleranceMinutes": 15
     }
   ],
   "spots": [
@@ -241,8 +255,116 @@
       "parkingId": "park-pqr",
       "label": "QP01",
       "type": "Acessível"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COM-01",
+      "type": "Comum",
+      "id": "spot-9a9fe0ba-00e8-49a0-9d62-cffcc95ee532"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COM-02",
+      "type": "Comum",
+      "id": "spot-a8366952-6c01-4670-be14-9e98d71f245b"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COM-03",
+      "type": "Comum",
+      "id": "spot-2c99b541-cd56-4686-abf8-5013ef3bdce2"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-01",
+      "type": "Coberta",
+      "id": "spot-78f96446-bb8b-400f-bedb-cae5046156d2"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-02",
+      "type": "Coberta",
+      "id": "spot-c1f1a23b-c355-4bcc-addd-aa4915424663"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-03",
+      "type": "Coberta",
+      "id": "spot-a4a12c35-3e2f-49cf-9ac1-eb9a29bf8cfe"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-04",
+      "type": "Coberta",
+      "id": "spot-c9fdd53b-a899-403e-ba2e-35a881a41f96"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-01",
+      "type": "Acessível",
+      "id": "spot-db60d96f-4188-4020-b48f-0c53b6a64ccb"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-02",
+      "type": "Acessível",
+      "id": "spot-3a6008e2-bfc7-479a-8c5f-c2fd1e5adc3d"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-03",
+      "type": "Acessível",
+      "id": "spot-0024fb9f-8a69-45c6-bfe3-80af2210b7dc"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-04",
+      "type": "Acessível",
+      "id": "spot-9ff9d053-95a9-4385-bb74-fd1a0c30a5b6"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-05",
+      "type": "Acessível",
+      "id": "spot-244e87f2-f460-4b35-9df5-43c972857702"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-06",
+      "type": "Acessível",
+      "id": "spot-b17a553a-cc79-4526-abe3-fb249b632cb2"
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-07",
+      "type": "Acessível",
+      "id": "spot-c5510fc7-a520-42b6-8cc2-f5f6f3c3a3a0"
     }
   ],
-  "reservations": [],
-  "reviews": []
+  "reservations": [
+    {
+      "code": "FP-23368B83",
+      "parkingId": "park-abc",
+      "parkingName": "Estacionamento ABC",
+      "spotId": "abc-c01",
+      "spotLabel": "C01",
+      "driverName": "Ricardo",
+      "driverEmail": "ricardo44143@gmail.com",
+      "driverPhone": "21984747029",
+      "startAt": "2026-10-05T20:00:00.000Z",
+      "endAt": "2026-10-05T22:00:00.000Z",
+      "durationHours": 2,
+      "spotType": "Coberta",
+      "paymentMethod": "Pix",
+      "hourlyRate": 24,
+      "totalAmount": 48,
+      "paymentStatus": "simulated_approved",
+      "status": "confirmed",
+      "createdAt": "2026-10-05T18:24:27.903Z",
+      "id": 1
+    }
+  ],
+  "reviews": [],
+  "users": [],
+  "parkingAccounts": []
 }

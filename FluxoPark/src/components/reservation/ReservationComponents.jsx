@@ -1,4 +1,5 @@
 import React from "react";
+import QRCode from "qrcode";
 
 export function ReservationHeader({onBack}) {
 			return <header className="bg-[#1d2b52] text-white">
@@ -111,6 +112,94 @@ export function ReservationHeader({onBack}) {
 				</dl>
 				<button type="button" onClick={onEdit} className="mt-4 text-sm font-semibold text-[#6236bc] underline underline-offset-2">Editar dados da solicitação</button>
 			</section>;
+		}
+
+		export function PaymentStep({paymentMethod, price, parkingName, reservationTime, spotType, spotLabel, paymentCode, onBack, onComplete, isSubmitting, error}) {
+			const [qrDataUrl, setQrDataUrl] = React.useState("");
+			const [qrError, setQrError] = React.useState("");
+			const [copyStatus, setCopyStatus] = React.useState("");
+			const pixPayload = `FLUXOPARK-DEMO-NAO-PAGAVEL|${paymentCode}|${price.toFixed(2)}`;
+			const formattedPrice = `R$ ${price.toFixed(2).replace(".", ",")}`;
+
+			React.useEffect(() => {
+				if (paymentMethod !== "Pix") return undefined;
+				let cancelled = false;
+				QRCode.toDataURL(pixPayload, {errorCorrectionLevel:"M", margin:2, width:240})
+					.then(dataUrl => {
+						if (!cancelled) setQrDataUrl(dataUrl);
+					})
+					.catch(generationError => {
+						console.error("Não foi possível gerar o QR code demonstrativo.", generationError);
+						if (!cancelled) setQrError("Não foi possível gerar o QR code. Tente voltar e avançar novamente.");
+					});
+				return () => { cancelled = true; };
+			}, [paymentMethod, pixPayload]);
+
+			async function copyPixCode() {
+				try {
+					await navigator.clipboard.writeText(pixPayload);
+					setCopyStatus("Código de demonstração copiado.");
+				} catch (copyError) {
+					console.error("Não foi possível copiar o código PIX demonstrativo.", copyError);
+					setCopyStatus("Não foi possível copiar automaticamente. Selecione e copie o código exibido.");
+				}
+			}
+
+			return <div className="min-h-screen bg-[#f8fafc] text-[#172749]">
+				<ReservationHeader onBack={onBack} />
+				<main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+					<section className="rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm sm:p-8" aria-labelledby="payment-title">
+						<p className="text-xs font-bold uppercase tracking-[0.16em] text-[#7c3aed]">Etapa final</p>
+						<h1 id="payment-title" className="mt-2 font-display text-3xl font-semibold">Pagamento</h1>
+						<p className="mt-2 text-sm leading-6 text-[#68738a]">Método escolhido: <strong>{paymentMethod}</strong>. Esta etapa é somente uma simulação.</p>
+						<div className="mt-5 grid gap-2 rounded-xl bg-[#f8fafc] p-4 text-sm sm:grid-cols-2">
+							<p><span className="text-[#68738a]">Estacionamento:</span> <strong>{parkingName}</strong></p>
+							<p><span className="text-[#68738a]">Vaga:</span> <strong>{spotType} {spotLabel}</strong></p>
+							<p><span className="text-[#68738a]">Horário:</span> <strong>{reservationTime}</strong></p>
+							<p><span className="text-[#68738a]">Total:</span> <strong className="text-[#7c3aed]">{formattedPrice}</strong></p>
+						</div>
+
+						{paymentMethod === "Pix" ? <section className="mt-6 grid justify-items-center gap-4 rounded-xl border border-[#e9e5f5] p-5 text-center" aria-label="Pagamento demonstrativo por Pix">
+							<h2 className="font-display text-xl font-semibold">Escaneie o QR code de demonstração</h2>
+							<p className="max-w-md text-sm leading-6 text-[#68738a]">Este QR code contém apenas um texto de teste. Não é um código Pix e não pode receber pagamentos.</p>
+							{qrDataUrl ? <img src={qrDataUrl} alt="QR code com texto de demonstração não pagável" className="h-60 w-60 rounded-lg border border-[#e5e7eb] p-2" /> : qrError ? <p role="alert" className="text-sm text-red-700">{qrError}</p> : <p role="status" className="text-sm text-[#68738a]">Gerando QR code...</p>}
+							<label className="grid w-full max-w-xl gap-1.5 text-left text-sm font-semibold" htmlFor="pix-copy-code">Código de demonstração (não pagável)
+								<textarea id="pix-copy-code" readOnly value={pixPayload} rows={3} className="w-full resize-none rounded-lg border border-[#d9dee8] bg-[#f8fafc] p-3 font-mono text-xs font-normal leading-5 outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15" />
+							</label>
+							<button type="button" onClick={copyPixCode} className="min-h-11 rounded-lg border border-[#7c3aed] px-5 py-2 text-sm font-semibold text-[#6236bc] transition hover:bg-[#faf8ff]">Copiar código</button>
+							{copyStatus && <p role="status" className="text-sm text-[#526079]">{copyStatus}</p>}
+						</section> : <form className="mt-6 grid gap-4 rounded-xl border border-[#e9e5f5] p-5" onSubmit={event => { event.preventDefault(); onComplete(); }}>
+							<div>
+								<h2 className="font-display text-xl font-semibold">Dados do cartão (simulação)</h2>
+								<p className="mt-1 text-sm leading-5 text-[#68738a]">Use somente informações fictícias. Os campos não são enviados nem salvos.</p>
+							</div>
+							<label className="grid gap-1.5 text-sm font-semibold" htmlFor="card-holder">Nome impresso no cartão
+								<input id="card-holder" type="text" autoComplete="off" required maxLength={100} placeholder="NOME FICTÍCIO" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal uppercase outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15" />
+							</label>
+							<label className="grid gap-1.5 text-sm font-semibold" htmlFor="card-number">Número do cartão
+								<input id="card-number" type="text" inputMode="numeric" autoComplete="off" required minLength={13} maxLength={23} pattern="[0-9 ]{13,23}" placeholder="0000 0000 0000 0000" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15" />
+							</label>
+							<div className="grid gap-4 sm:grid-cols-2">
+								<label className="grid gap-1.5 text-sm font-semibold" htmlFor="card-expiry">Validade
+									<input id="card-expiry" type="text" inputMode="numeric" autoComplete="off" required maxLength={5} pattern="(0[1-9]|1[0-2])/[0-9]{2}" placeholder="MM/AA" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15" />
+								</label>
+								<label className="grid gap-1.5 text-sm font-semibold" htmlFor="card-cvv">CVV
+									<input id="card-cvv" type="password" inputMode="numeric" autoComplete="off" required minLength={3} maxLength={4} pattern="[0-9]{3,4}" placeholder="000" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15" />
+								</label>
+							</div>
+							<p className="rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-3 py-2.5 text-xs leading-5 text-[#785713]">Demonstração sem processador de pagamento: não informe dados reais de cartão.</p>
+							{error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">{error}</p>}
+							<button type="submit" disabled={isSubmitting} className="min-h-12 rounded-lg bg-[#7c3aed] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#6d28d9] disabled:cursor-wait disabled:opacity-60">{isSubmitting ? "Registrando simulação..." : `Simular pagamento de ${formattedPrice}`}</button>
+						</form>}
+
+						{paymentMethod === "Pix" && <div className="mt-5">
+							{error && <p role="alert" className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">{error}</p>}
+							<button type="button" onClick={onComplete} disabled={isSubmitting} className="min-h-12 w-full rounded-lg bg-[#7c3aed] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#6d28d9] disabled:cursor-wait disabled:opacity-60">{isSubmitting ? "Registrando simulação..." : `Simular pagamento de ${formattedPrice}`}</button>
+						</div>}
+						<p className="mt-4 text-center text-xs leading-5 text-[#758098]">Nenhuma cobrança real será feita. Ao continuar, apenas a reserva de demonstração será registrada localmente.</p>
+					</section>
+				</main>
+			</div>;
 		}
 
 		export function ReservationConfirmation({reservation, code, parkingAddress}) {
