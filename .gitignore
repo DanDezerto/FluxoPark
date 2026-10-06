@@ -1,2 +1,6 @@
-FluxoPark/config.local.js
 .DS_Store
+node_modules/
+dist/
+FluxoPark/public/config.local.js
+.env
+.env.local

@@ -1,0 +1,20 @@
+{
+  "users": [
+    {
+      "id": "mock-driver",
+      "name": "Motorista de Teste",
+      "email": "motorista@exemplo.test",
+      "phone": "+55 21 90000-0000",
+      "vehicles": [
+        {
+          "id": "mock-vehicle",
+          "plate": "ABC1D23",
+          "model": "Hatch de teste",
+          "color": "Prata"
+        }
+      ],
+      "passwordDigest": "9983696b7350cb915713a5da642064e5b29c80aa84187122cb3723a0f902b197",
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    }
+  ]
+}

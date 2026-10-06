@@ -6,7 +6,9 @@ const demoPlaces = [
   {name:"Estacionamento GHI",address:"Rua do Comércio, 42",distance:"650 m",walking:"8 min",price:"R$XX,YY / h",rating:"4,5",lat:-23.558,lng:-46.648},
   {name:"Estacionamento JKL",address:"Alameda Santos, 300",distance:"890 m",walking:"11 min",price:"R$XX,YY / h",rating:"4,3",lat:-23.566,lng:-46.66}
 ];
-let map, targetMarker, markers = [], autocomplete, selectedPlace = null, currentPlaces = [], selectedIndex = -1, detailsService, directionsService, directionsRenderer, destinationLocation;
+let map, targetMarker, markers = [], currentPlaces = [], selectedIndex = -1, Place, Route, destinationLocation;
+const walkingRoutes = new Map();
+let walkingPolylines = [];
 const form = document.querySelector("#destination-form");
 const input = document.querySelector("#destination");
 const list = document.querySelector("#results-list");
@@ -59,19 +61,33 @@ function selectPlace(index, places){
   if(place.expanded && !place.detailsLoaded) loadPlaceDetails(place);
 }
 function drawWalkingRoute(place){
-  if(!directionsService || !directionsRenderer || !destinationLocation) return;
-  directionsService.route({origin:{lat:place.lat, lng:place.lng}, destination:destinationLocation, travelMode:google.maps.TravelMode.WALKING}, (result, statusCode) => {
-    if(statusCode === google.maps.DirectionsStatus.OK) directionsRenderer.setDirections(result);
-    else showToast("Não foi possível traçar a rota a pé");
+  walkingPolylines.forEach(polyline => polyline.setMap(null));
+  walkingPolylines = [];
+  const route = walkingRoutes.get(place);
+  if(!route) return;
+  walkingPolylines = route.createPolylines();
+  walkingPolylines.forEach(polyline => {
+    polyline.setOptions({strokeColor:"#f2684a", strokeOpacity:.9, strokeWeight:5});
+    polyline.setMap(map);
   });
 }
-function loadPlaceDetails(place){
-  if(!detailsService || !place.place_id) return;
-  detailsService.getDetails({placeId:place.place_id, fields:["formatted_address","formatted_phone_number","opening_hours","photos","reviews","user_ratings_total","url"]}, (details, code) => {
-    if(code !== google.maps.places.PlacesServiceStatus.OK) { showToast("Detalhes do estabelecimento indisponíveis"); return; }
-    place.fullAddress = details.formatted_address || place.address; place.address = place.fullAddress; place.phone = details.formatted_phone_number; place.googleMapsUrl = details.url; place.opening_hours = details.opening_hours; place.user_ratings_total = details.user_ratings_total; place.reviews = details.reviews;
-    place.photos = details.photos?.map(photo => photo.getUrl({maxWidth:240, maxHeight:110})); place.detailsLoaded = true; renderCards(currentPlaces);
-  });
+async function loadPlaceDetails(place){
+  if(!place.googlePlace) return;
+  try {
+    await place.googlePlace.fetchFields({fields:["formattedAddress","nationalPhoneNumber","regularOpeningHours","photos","reviews","userRatingCount","googleMapsURI"]});
+    const details = place.googlePlace;
+    place.address = details.formattedAddress || place.address;
+    place.phone = details.nationalPhoneNumber;
+    place.googleMapsUrl = details.googleMapsURI;
+    place.opening_hours = {weekday_text:details.regularOpeningHours?.weekdayDescriptions};
+    place.user_ratings_total = details.userRatingCount;
+    place.reviews = details.reviews?.map(review => ({author_name:review.authorAttribution?.displayName || "Usuário do Google", rating:review.rating, text:review.text?.text || ""}));
+    place.photos = details.photos?.slice(0, 4).map(photo => photo.getURI({maxWidth:240, maxHeight:110}));
+    place.detailsLoaded = true;
+    renderCards(currentPlaces);
+  } catch(error) {
+    showToast("Detalhes do estacionamento indisponíveis: " + error.message);
+  }
 }
 function renderMarkers(places, target){
   markers.forEach(item => item.marker.setMap(null)); markers = [];
@@ -80,33 +96,84 @@ function renderMarkers(places, target){
 }
 function useDemoSearch(){ renderCards(demoPlaces); status.textContent = "Modo demonstrativo: configure a chave do Google Maps para dados reais"; showToast("Resultados demonstrativos carregados"); }
 async function searchGoogle(destination){
-  const geocoder = new google.maps.Geocoder();
-  const response = selectedPlace?.geometry?.location
-    ? {results:[selectedPlace]}
-    : await geocoder.geocode({address:destination, region:"br"});
-  if(!response.results[0]) throw new Error("Destino não encontrado");
-  const target = response.results[0].geometry.location;
+  if(!Place || !Route) throw new Error("As APIs Places (New) e Routes precisam estar habilitadas no Google Cloud.");
+  const {places:destinations} = await Place.searchByText({textQuery:destination, fields:["displayName","formattedAddress","location"], maxResultCount:1, region:"br"});
+  const destinationPlace = destinations?.[0];
+  if(!destinationPlace?.location) throw new Error("Destino não encontrado. Tente informar o endereço completo ou a cidade.");
+  const target = destinationPlace.location;
   destinationLocation = target;
   map.setCenter(target); map.setZoom(14);
-  const service = new google.maps.places.PlacesService(map);
-  const nearby = await new Promise((resolve, reject) => service.nearbySearch({location:target, radius:4000, type:"parking"}, (results, code) => code === google.maps.places.PlacesServiceStatus.OK ? resolve(results) : reject(new Error("Nenhum estacionamento encontrado"))));
-  const distanceService = new google.maps.DistanceMatrixService();
-  const matrix = await distanceService.getDistanceMatrix({origins:nearby.map(place => place.geometry.location), destinations:[target], travelMode:google.maps.TravelMode.WALKING, unitSystem:google.maps.UnitSystem.METRIC});
-  const places = nearby.map((place, index) => { const element = matrix.rows[index].elements[0]; return {name:place.name,address:place.vicinity || "Endereço indisponível",distance:element.distance?.text || "-",walking:element.duration?.text || "-",price:place.price_level ? "R$" + "$".repeat(place.price_level) : "Consultar",price_level:place.price_level,rating:place.rating ? place.rating.toFixed(1) : "Novo",lat:place.geometry.location.lat(),lng:place.geometry.location.lng(),place_id:place.place_id}; });
-  renderCards(places); renderMarkers(places, target); status.textContent = `Resultados para ${response.results[0].formatted_address || destination}`; showToast(`${places.length} estacionamentos encontrados`);
+  const {places:nearby} = await Place.searchNearby({
+    fields:["displayName","formattedAddress","location","rating","priceLevel","id","googleMapsURI"],
+    locationRestriction:{center:target, radius:4000},
+    includedPrimaryTypes:["parking"],
+    maxResultCount:10,
+    rankPreference:"DISTANCE"
+  });
+  if(!nearby?.length) throw new Error("Nenhum estacionamento encontrado em até 4 km do destino.");
+  walkingRoutes.clear();
+  const places = await Promise.all(nearby.filter(place => place.location).map(async place => {
+    let distance = "-", walking = "-";
+    try {
+      const result = await Route.computeRoutes({origin:place.location, destination:target, travelMode:"WALKING", fields:["distanceMeters","durationMillis","path"]});
+      const route = result.routes?.[0];
+      if(route) {
+        walkingRoutes.set(place, route);
+        distance = route.distanceMeters < 1000 ? `${route.distanceMeters} m` : `${(route.distanceMeters / 1000).toFixed(1)} km`;
+        walking = `${Math.max(1, Math.round(route.durationMillis / 60000))} min`;
+      }
+    } catch(error) {
+      console.warn("Não foi possível calcular a rota a pé para um estacionamento.", error);
+    }
+    const priceLevels = {PRICE_LEVEL_INEXPENSIVE:1,PRICE_LEVEL_MODERATE:2,PRICE_LEVEL_EXPENSIVE:3,PRICE_LEVEL_VERY_EXPENSIVE:4};
+    const price_level = priceLevels[place.priceLevel] || 0;
+    return {
+      name:place.displayName || "Estacionamento",
+      address:place.formattedAddress || "Endereço indisponível",
+      distance,
+      walking,
+      price:price_level ? "R$" + "$".repeat(price_level) : "Consultar",
+      price_level,
+      rating:place.rating ? place.rating.toFixed(1) : "Novo",
+      lat:place.location.lat(),
+      lng:place.location.lng(),
+      place_id:place.id,
+      googleMapsUrl:place.googleMapsURI,
+      googlePlace:place
+    };
+  }));
+  renderCards(places); renderMarkers(places, target); status.textContent = `Resultados para ${destinationPlace.formattedAddress || destination}`; showToast(`${places.length} estacionamentos encontrados`);
 }
-input.addEventListener("input", () => { selectedPlace = null; });
 sortSelect.addEventListener("change", () => { if(currentPlaces.length) renderCards(currentPlaces); });
 document.querySelector("#filter-button").addEventListener("click", () => { sortSelect.focus(); });
-form.addEventListener("submit", event => { event.preventDefault(); if(!input.value.trim()) return; status.textContent = "Procurando estacionamentos próximos..."; if(window.google?.maps && GOOGLE_MAPS_API_KEY && map) searchGoogle(input.value.trim()).catch(error => { status.textContent = error.message; showToast(error.message); }); else useDemoSearch(); });
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  const destination = input.value.trim();
+  if(!destination) return;
+  status.textContent = "Procurando o destino e estacionamentos próximos...";
+  if(!GOOGLE_MAPS_API_KEY) { useDemoSearch(); return; }
+  if(!window.google?.maps || !map) {
+    status.textContent = "Google Maps não carregou. Verifique a chave, as restrições e as APIs habilitadas no Google Cloud.";
+    showToast("Não foi possível carregar o Google Maps");
+    return;
+  }
+  try {
+    await searchGoogle(destination);
+  } catch(error) {
+    status.textContent = error.message;
+    showToast(error.message);
+  }
+});
 document.querySelector("#locate-button").addEventListener("click", () => { if(!navigator.geolocation) return showToast("Geolocalização indisponível"); navigator.geolocation.getCurrentPosition(position => { input.value = "Minha localização"; map?.setCenter({lat:position.coords.latitude,lng:position.coords.longitude}); showToast("Localização encontrada"); }, () => showToast("Não foi possível acessar sua localização")); });
 document.querySelector("#menu-button").addEventListener("click", event => { const expanded = event.currentTarget.getAttribute("aria-expanded") === "true"; event.currentTarget.setAttribute("aria-expanded", String(!expanded)); showToast(expanded ? "Menu fechado" : "Menu em breve"); });
-function initMap(){
+async function initMap(){
   map = new google.maps.Map(document.querySelector("#map"), {center:{lat:-23.561,lng:-46.655},zoom:14,disableDefaultUI:true,zoomControl:true,styles:[{featureType:"poi",stylers:[{visibility:"off"}]}]});
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({map, suppressMarkers:true, polylineOptions:{strokeColor:"#f2684a", strokeOpacity:.9, strokeWeight:5}});
-  detailsService = new google.maps.places.PlacesService(map);
-  autocomplete = new google.maps.places.Autocomplete(input, {types:["geocode","establishment"], componentRestrictions:{country:"br"}, fields:["formatted_address","geometry","name"]});
-  autocomplete.addListener("place_changed", () => { selectedPlace = autocomplete.getPlace(); if(!selectedPlace.geometry) { status.textContent = "Escolha uma sugestão válida do Google Maps"; return; } input.value = selectedPlace.formatted_address || selectedPlace.name; status.textContent = "Destino selecionado. Pressione Enter para buscar."; });
+  try {
+    [{Place}, {Route}] = await Promise.all([google.maps.importLibrary("places"), google.maps.importLibrary("routes")]);
+  } catch(error) {
+    status.textContent = "Não foi possível iniciar a busca. Habilite Places API (New) e Routes API no Google Cloud.";
+    showToast(status.textContent);
+    console.error("Falha ao iniciar as bibliotecas Places e Routes do Google Maps.", error);
+  }
 }
-if(GOOGLE_MAPS_API_KEY){ const script = document.createElement("script"); script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`; script.async = true; script.defer = true; script.onerror = () => { status.textContent = "Não foi possível carregar o Google Maps"; }; window.initMap = initMap; document.head.appendChild(script); }
+if(GOOGLE_MAPS_API_KEY){ const script = document.createElement("script"); script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&loading=async&callback=initMap`; script.async = true; script.onerror = () => { status.textContent = "Não foi possível carregar o Google Maps. Verifique a chave e a conexão."; showToast("Não foi possível carregar o Google Maps"); }; window.initMap = initMap; window.gm_authFailure = () => { status.textContent = "Chave do Google Maps recusada. Verifique as restrições, faturamento e APIs habilitadas."; showToast("A chave do Google Maps não foi autorizada"); }; document.head.appendChild(script); } else { status.textContent = "Google Maps sem configuração. A busca demonstrativa continuará disponível."; }

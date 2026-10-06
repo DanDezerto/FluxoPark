@@ -1,0 +1,111 @@
+{
+  "parkingAccounts": [
+    {
+      "id": "mock-valonguinho-partner",
+      "email": "valonguinho@exemplo.test",
+      "cnpj": "00000000000272",
+      "passwordDigest": "057f2a6fd7f74fd3da9d980f74812fb36bb025b0bc3f2f479b77165914267f7c",
+      "parkingIds": [
+        "mock-estacionamento-valonguinho"
+      ],
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    }
+  ],
+  "parkings": [
+    {
+      "id": "mock-estacionamento-valonguinho",
+      "googlePlaceId": "ChIJ37e0yxKDmQARQ1nMiBragMs",
+      "name": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "address": "Av. Visconde do Rio Branco - Centro, Niterói - RJ, 24020-130, Brasil",
+      "phone": "+55 21 2621-4797",
+      "location": {
+        "lat": -22.8960886,
+        "lng": -43.1255404
+      },
+      "googleMapsUrl": "https://maps.app.goo.gl/nJqYyZjT9wQsKfiZ6",
+      "rating": 4,
+      "reviewCount": 51,
+      "partner": true,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 8,
+          "upTo4Hours": 6,
+          "over4Hours": 5
+        },
+        "Descoberta": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        },
+        "Especial": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        }
+      },
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "1": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "2": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "3": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "4": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "5": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "6": {
+          "open": "00:00",
+          "close": "00:00"
+        }
+      },
+      "allowsOvernight": true,
+      "testDataNotes": "Place ID, nome, endereço, telefone, coordenadas, nota, quantidade de avaliações e horário 24h obtidos da ficha do Google Maps. Tarifas, tags e vagas são dados genéricos para teste; parceria não confirmada."
+    }
+  ],
+  "spots": [
+    {
+      "id": "mock-valonguinho-covered",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "label": "COB-01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "mock-valonguinho-open",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "label": "DES-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "mock-valonguinho-special",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "label": "ESP-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    }
+  ]
+}

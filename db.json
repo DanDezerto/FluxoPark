@@ -1,0 +1,1339 @@
+{
+  "parkings": [
+    {
+      "id": "park-abc",
+      "googlePlaceId": "demo-park-abc",
+      "name": "Estacionamento ABC",
+      "address": "Rua das Flores, 120, São Paulo - SP",
+      "partner": true,
+      "rating": 4.8,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 24,
+          "upTo4Hours": 24,
+          "over4Hours": 24
+        },
+        "Descoberta": {
+          "upTo1Hour": 18,
+          "upTo4Hours": 18,
+          "over4Hours": 18
+        },
+        "Especial": {
+          "upTo1Hour": 18,
+          "upTo4Hours": 18,
+          "over4Hours": 18
+        }
+      },
+      "toleranceMinutes": 15
+    },
+    {
+      "id": "park-def",
+      "googlePlaceId": "demo-park-def",
+      "name": "Estacionamento DEF",
+      "address": "Avenida Central, 845, São Paulo - SP",
+      "partner": true,
+      "rating": 4.6,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 20,
+          "upTo4Hours": 20,
+          "over4Hours": 20
+        },
+        "Descoberta": {
+          "upTo1Hour": 15,
+          "upTo4Hours": 15,
+          "over4Hours": 15
+        },
+        "Especial": {
+          "upTo1Hour": 15,
+          "upTo4Hours": 15,
+          "over4Hours": 15
+        }
+      },
+      "toleranceMinutes": 10,
+      "banned": true,
+      "banUntil": "2026-10-13T06:46:05.290Z",
+      "banReason": "estacionamento pagará pelo dano"
+    },
+    {
+      "id": "park-ghi",
+      "googlePlaceId": "demo-park-ghi",
+      "name": "Estacionamento GHI",
+      "address": "Rua do Comércio, 42, São Paulo - SP",
+      "partner": true,
+      "rating": 4.5,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 28,
+          "upTo4Hours": 28,
+          "over4Hours": 28
+        },
+        "Descoberta": {
+          "upTo1Hour": 22,
+          "upTo4Hours": 22,
+          "over4Hours": 22
+        },
+        "Especial": {
+          "upTo1Hour": 22,
+          "upTo4Hours": 22,
+          "over4Hours": 22
+        }
+      },
+      "toleranceMinutes": 15
+    },
+    {
+      "id": "park-jkl",
+      "googlePlaceId": "demo-park-jkl",
+      "name": "Estacionamento JKL",
+      "address": "Alameda Santos, 300, São Paulo - SP",
+      "partner": true,
+      "rating": 4.3,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 26,
+          "upTo4Hours": 26,
+          "over4Hours": 26
+        },
+        "Descoberta": {
+          "upTo1Hour": 20,
+          "upTo4Hours": 20,
+          "over4Hours": 20
+        },
+        "Especial": {
+          "upTo1Hour": 20,
+          "upTo4Hours": 20,
+          "over4Hours": 20
+        }
+      },
+      "toleranceMinutes": 15
+    },
+    {
+      "id": "park-mno",
+      "googlePlaceId": "demo-park-mno",
+      "name": "Estacionamento MNO",
+      "address": "Rua Pamplona, 56, São Paulo - SP",
+      "partner": true,
+      "rating": 4.7,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 22,
+          "upTo4Hours": 22,
+          "over4Hours": 22
+        },
+        "Descoberta": {
+          "upTo1Hour": 16,
+          "upTo4Hours": 16,
+          "over4Hours": 16
+        },
+        "Especial": {
+          "upTo1Hour": 16,
+          "upTo4Hours": 16,
+          "over4Hours": 16
+        }
+      },
+      "toleranceMinutes": 10
+    },
+    {
+      "id": "park-pqr",
+      "googlePlaceId": "demo-park-pqr",
+      "name": "Estacionamento PQR",
+      "address": "Avenida Nove de Julho, 410, São Paulo - SP",
+      "partner": true,
+      "rating": 4.2,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 18,
+          "upTo4Hours": 18,
+          "over4Hours": 18
+        },
+        "Descoberta": {
+          "upTo1Hour": 12,
+          "upTo4Hours": 12,
+          "over4Hours": 12
+        },
+        "Especial": {
+          "upTo1Hour": 12,
+          "upTo4Hours": 12,
+          "over4Hours": 12
+        }
+      },
+      "toleranceMinutes": 20
+    },
+    {
+      "id": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "name": "estacionamento coxinha",
+      "address": "rua coxinha, 123",
+      "googlePlaceId": null,
+      "partner": true,
+      "rating": 5,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 2,
+          "upTo4Hours": 2,
+          "over4Hours": 2
+        },
+        "Descoberta": {
+          "upTo1Hour": 1,
+          "upTo4Hours": 1,
+          "over4Hours": 1
+        },
+        "Especial": {
+          "upTo1Hour": 3,
+          "upTo4Hours": 3,
+          "over4Hours": 3
+        }
+      },
+      "toleranceMinutes": 15
+    },
+    {
+      "id": "park-plaza-niteroi",
+      "googlePlaceId": null,
+      "name": "Estacionamento do Plaza Shopping Niterói",
+      "address": "Rua XV de Novembro, 8, Centro, Niterói - RJ",
+      "partner": true,
+      "rating": 4.2,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 24,
+          "upTo4Hours": 24,
+          "over4Hours": 24
+        },
+        "Descoberta": {
+          "upTo1Hour": 18,
+          "upTo4Hours": 18,
+          "over4Hours": 18
+        },
+        "Especial": {
+          "upTo1Hour": 18,
+          "upTo4Hours": 18,
+          "over4Hours": 18
+        }
+      },
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {
+          "open": "10:00",
+          "close": "22:00"
+        },
+        "1": {
+          "open": "10:00",
+          "close": "22:00"
+        },
+        "2": {
+          "open": "10:00",
+          "close": "22:00"
+        },
+        "3": {
+          "open": "10:00",
+          "close": "22:00"
+        },
+        "4": {
+          "open": "10:00",
+          "close": "22:00"
+        },
+        "5": {
+          "open": "10:00",
+          "close": "22:00"
+        },
+        "6": {
+          "open": "12:00",
+          "close": "21:00"
+        }
+      },
+      "allowsOvernight": false
+    },
+    {
+      "id": "park-bay-market-niteroi",
+      "googlePlaceId": null,
+      "name": "Estacionamento Bay Market",
+      "address": "Avenida Visconde do Rio Branco, 360, Centro, Niterói - RJ",
+      "partner": true,
+      "rating": 4,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 20,
+          "upTo4Hours": 20,
+          "over4Hours": 20
+        },
+        "Descoberta": {
+          "upTo1Hour": 15,
+          "upTo4Hours": 15,
+          "over4Hours": 15
+        },
+        "Especial": {
+          "upTo1Hour": 15,
+          "upTo4Hours": 15,
+          "over4Hours": 15
+        }
+      },
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "1": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "2": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "3": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "4": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "5": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "6": {
+          "open": "08:00",
+          "close": "23:00"
+        }
+      },
+      "allowsOvernight": true
+    },
+    {
+      "id": "park-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e",
+      "name": "Daniel Dezerto Rimes",
+      "address": "Rua Professor Otacílio, 30",
+      "googlePlaceId": "teste",
+      "partner": true,
+      "rating": 4.5,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 6,
+          "upTo4Hours": 6,
+          "over4Hours": 6
+        },
+        "Descoberta": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 5,
+          "over4Hours": 5
+        },
+        "Especial": {
+          "upTo1Hour": 7,
+          "upTo4Hours": 7,
+          "over4Hours": 7
+        }
+      },
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "1": {
+          "open": "06:00",
+          "close": "23:00"
+        },
+        "2": {
+          "open": "06:00",
+          "close": "23:00"
+        },
+        "3": {
+          "open": "06:00",
+          "close": "23:00"
+        },
+        "4": {
+          "open": "06:00",
+          "close": "23:00"
+        },
+        "5": {
+          "open": "06:00",
+          "close": "23:00"
+        },
+        "6": {
+          "open": "06:00",
+          "close": "23:00"
+        }
+      },
+      "allowsOvernight": true,
+      "requestId": "partner-request-2f93edac-a5f4-4700-a867-5e552d90706e"
+    },
+    {
+      "id": "mock-estacionamento-valonguinho",
+      "googlePlaceId": "ChIJ37e0yxKDmQARQ1nMiBragMs",
+      "name": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "address": "Av. Visconde do Rio Branco - Centro, Niterói - RJ, 24020-130, Brasil",
+      "phone": "+55 21 2621-4797",
+      "location": {
+        "lat": -22.8960886,
+        "lng": -43.1255404
+      },
+      "googleMapsUrl": "https://maps.app.goo.gl/nJqYyZjT9wQsKfiZ6",
+      "rating": 4,
+      "reviewCount": 51,
+      "partner": true,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 8,
+          "upTo4Hours": 6,
+          "over4Hours": 5
+        },
+        "Descoberta": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        },
+        "Especial": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        }
+      },
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "1": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "2": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "3": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "4": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "5": {
+          "open": "00:00",
+          "close": "00:00"
+        },
+        "6": {
+          "open": "00:00",
+          "close": "00:00"
+        }
+      },
+      "allowsOvernight": true,
+      "testDataNotes": "Place ID, nome, endereço, telefone, coordenadas, nota, quantidade de avaliações e horário 24h obtidos da ficha do Google Maps. Tarifas, tags e vagas são dados genéricos para teste; parceria não confirmada."
+    },
+    {
+      "id": "mock-parking",
+      "googlePlaceId": null,
+      "name": "Estacionamento de Teste",
+      "address": "Rua de Exemplo, 100, Centro, Niterói - RJ",
+      "partner": true,
+      "rating": 4.5,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 8,
+          "upTo4Hours": 6,
+          "over4Hours": 5
+        },
+        "Descoberta": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        },
+        "Especial": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        }
+      },
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "1": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "2": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "3": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "4": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "5": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "6": {
+          "open": "08:00",
+          "close": "23:00"
+        }
+      },
+      "allowsOvernight": true
+    }
+  ],
+  "spots": [
+    {
+      "id": "abc-01",
+      "parkingId": "park-abc",
+      "label": "A01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "abc-02",
+      "parkingId": "park-abc",
+      "label": "A02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "abc-03",
+      "parkingId": "park-abc",
+      "label": "A03",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "abc-c01",
+      "parkingId": "park-abc",
+      "label": "C01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "abc-c02",
+      "parkingId": "park-abc",
+      "label": "C02",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "abc-p01",
+      "parkingId": "park-abc",
+      "label": "P01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "def-01",
+      "parkingId": "park-def",
+      "label": "B01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "def-02",
+      "parkingId": "park-def",
+      "label": "B02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "def-c01",
+      "parkingId": "park-def",
+      "label": "D01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "def-p01",
+      "parkingId": "park-def",
+      "label": "P01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "ghi-01",
+      "parkingId": "park-ghi",
+      "label": "G01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "ghi-02",
+      "parkingId": "park-ghi",
+      "label": "G02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "ghi-c01",
+      "parkingId": "park-ghi",
+      "label": "E01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "ghi-p01",
+      "parkingId": "park-ghi",
+      "label": "P01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "jkl-01",
+      "parkingId": "park-jkl",
+      "label": "J01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "jkl-02",
+      "parkingId": "park-jkl",
+      "label": "J02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "jkl-c01",
+      "parkingId": "park-jkl",
+      "label": "JC01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "jkl-p01",
+      "parkingId": "park-jkl",
+      "label": "JP01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "mno-01",
+      "parkingId": "park-mno",
+      "label": "M01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "mno-02",
+      "parkingId": "park-mno",
+      "label": "M02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "mno-c01",
+      "parkingId": "park-mno",
+      "label": "MC01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "mno-p01",
+      "parkingId": "park-mno",
+      "label": "MP01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "pqr-01",
+      "parkingId": "park-pqr",
+      "label": "Q01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "pqr-02",
+      "parkingId": "park-pqr",
+      "label": "Q02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "pqr-c01",
+      "parkingId": "park-pqr",
+      "label": "QC01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "pqr-p01",
+      "parkingId": "park-pqr",
+      "label": "QP01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COM-01",
+      "type": "Descoberta",
+      "id": "spot-9a9fe0ba-00e8-49a0-9d62-cffcc95ee532",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COM-02",
+      "type": "Descoberta",
+      "id": "spot-a8366952-6c01-4670-be14-9e98d71f245b",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COM-03",
+      "type": "Descoberta",
+      "id": "spot-2c99b541-cd56-4686-abf8-5013ef3bdce2",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-01",
+      "type": "Coberta",
+      "id": "spot-78f96446-bb8b-400f-bedb-cae5046156d2",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-02",
+      "type": "Coberta",
+      "id": "spot-c1f1a23b-c355-4bcc-addd-aa4915424663",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-03",
+      "type": "Coberta",
+      "id": "spot-a4a12c35-3e2f-49cf-9ac1-eb9a29bf8cfe",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "COB-04",
+      "type": "Coberta",
+      "id": "spot-c9fdd53b-a899-403e-ba2e-35a881a41f96",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-01",
+      "type": "Descoberta",
+      "id": "spot-db60d96f-4188-4020-b48f-0c53b6a64ccb",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-02",
+      "type": "Descoberta",
+      "id": "spot-3a6008e2-bfc7-479a-8c5f-c2fd1e5adc3d",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-03",
+      "type": "Descoberta",
+      "id": "spot-0024fb9f-8a69-45c6-bfe3-80af2210b7dc",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-04",
+      "type": "Descoberta",
+      "id": "spot-9ff9d053-95a9-4385-bb74-fd1a0c30a5b6",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-05",
+      "type": "Descoberta",
+      "id": "spot-244e87f2-f460-4b35-9df5-43c972857702",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-06",
+      "type": "Descoberta",
+      "id": "spot-b17a553a-cc79-4526-abe3-fb249b632cb2",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "parkingId": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
+      "label": "ACE-07",
+      "type": "Descoberta",
+      "id": "spot-c5510fc7-a520-42b6-8cc2-f5f6f3c3a3a0",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "plaza-nit-01",
+      "parkingId": "park-plaza-niteroi",
+      "label": "P01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "plaza-nit-02",
+      "parkingId": "park-plaza-niteroi",
+      "label": "P02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "plaza-nit-03",
+      "parkingId": "park-plaza-niteroi",
+      "label": "P03",
+      "type": "Coberta",
+      "features": [
+        "Coberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "bay-market-01",
+      "parkingId": "park-bay-market-niteroi",
+      "label": "B01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "bay-market-02",
+      "parkingId": "park-bay-market-niteroi",
+      "label": "B02",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "bay-market-03",
+      "parkingId": "park-bay-market-niteroi",
+      "label": "B03",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "label": "G101",
+      "type": "Coberta",
+      "features": [
+        "Coberta",
+        "Especial"
+      ],
+      "id": "spot-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e-1",
+      "parkingId": "park-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e"
+    },
+    {
+      "label": "G201",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ],
+      "id": "spot-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e-2",
+      "parkingId": "park-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e"
+    },
+    {
+      "id": "mock-valonguinho-covered",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "label": "COB-01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "mock-valonguinho-open",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "label": "DES-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "mock-valonguinho-special",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "label": "ESP-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    },
+    {
+      "id": "mock-spot-covered",
+      "parkingId": "mock-parking",
+      "label": "COB-01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "mock-spot-open",
+      "parkingId": "mock-parking",
+      "label": "DES-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "mock-spot-special",
+      "parkingId": "mock-parking",
+      "label": "ESP-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    }
+  ],
+  "reservations": [
+    {
+      "code": "FP-23368B83",
+      "parkingId": "park-abc",
+      "parkingName": "Estacionamento ABC",
+      "spotId": "abc-c01",
+      "spotLabel": "C01",
+      "driverName": "Ricardo",
+      "driverEmail": "ricardo44143@gmail.com",
+      "driverPhone": "21984747029",
+      "startAt": "2026-10-05T20:00:00.000Z",
+      "endAt": "2026-10-05T22:00:00.000Z",
+      "durationHours": 2,
+      "spotType": "Coberta",
+      "paymentMethod": "Pix",
+      "hourlyRate": 24,
+      "totalAmount": 48,
+      "paymentStatus": "simulated_approved",
+      "status": "confirmed",
+      "createdAt": "2026-10-05T18:24:27.903Z",
+      "id": 1
+    },
+    {
+      "code": "FP-13584680",
+      "parkingId": "park-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e",
+      "parkingName": "Daniel Dezerto Rimes",
+      "spotId": "spot-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e-1",
+      "spotLabel": "G101",
+      "driverName": "Daniel Dezerto Rimes",
+      "driverEmail": "danieldezertorimes@gmail.com",
+      "driverPhone": "+5521991745461",
+      "driverId": "user-2ff1b653-e728-4995-8de3-7a2ef19801bf",
+      "vehicleId": "vehicle-d906f476-f2ca-4e3e-bd6d-708380ca599e",
+      "vehiclePlate": "ABC1D23",
+      "vehicleModel": "Honda Civic",
+      "startAt": "2026-10-12T10:00:00.000Z",
+      "endAt": "2026-10-13T09:00:00.000Z",
+      "durationHours": 23,
+      "spotType": "Comum",
+      "spotFeatures": [
+        "Comum"
+      ],
+      "paymentMethod": "Pix",
+      "paymentMethodId": null,
+      "hourlyRate": 5,
+      "totalAmount": 115,
+      "paymentStatus": "simulated_approved",
+      "status": "confirmed",
+      "createdAt": "2026-10-06T07:03:26.692Z",
+      "id": 2
+    },
+    {
+      "code": "FP-D1338C0C",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "parkingName": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "spotId": "mock-valonguinho-covered",
+      "spotLabel": "COB-01",
+      "driverName": "Daniel Dezerto Rimes",
+      "driverEmail": "danieldezertorimes@gmail.com",
+      "driverPhone": "+5521991745461",
+      "driverId": "user-2ff1b653-e728-4995-8de3-7a2ef19801bf",
+      "vehicleId": "vehicle-d906f476-f2ca-4e3e-bd6d-708380ca599e",
+      "vehiclePlate": "ABC1D23",
+      "vehicleModel": "Honda Civic",
+      "startAt": "2026-10-06T20:00:00.000Z",
+      "endAt": "2026-10-07T15:00:00.000Z",
+      "durationHours": 19,
+      "spotType": "Coberta",
+      "spotFeatures": [
+        "Coberta"
+      ],
+      "paymentMethod": "Pix",
+      "paymentMethodId": null,
+      "hourlyRate": 5,
+      "totalAmount": 95,
+      "paymentStatus": "simulated_approved",
+      "status": "confirmed",
+      "createdAt": "2026-10-06T08:58:09.050Z",
+      "id": 3
+    },
+    {
+      "code": "FP-721F4DDB",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "parkingName": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "spotId": "mock-valonguinho-covered",
+      "spotLabel": "COB-01",
+      "driverName": "Motorista de Teste",
+      "driverEmail": "motorista@exemplo.test",
+      "driverPhone": "+55 21 90000-0000",
+      "driverId": "mock-driver",
+      "vehicleId": "mock-vehicle",
+      "vehiclePlate": "ABC1D23",
+      "vehicleModel": "Hatch de teste",
+      "startAt": "2026-10-06T15:00:00.000Z",
+      "endAt": "2026-10-06T16:00:00.000Z",
+      "durationHours": 1,
+      "spotType": "Coberta",
+      "spotFeatures": [
+        "Coberta"
+      ],
+      "paymentMethod": "Pix",
+      "paymentMethodId": null,
+      "hourlyRate": 8,
+      "totalAmount": 8,
+      "paymentStatus": "simulated_approved",
+      "status": "confirmed",
+      "createdAt": "2026-10-06T09:44:51.735Z",
+      "id": 4
+    },
+    {
+      "code": "FP-96B3160E",
+      "parkingId": "mock-estacionamento-valonguinho",
+      "parkingName": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "spotId": "mock-valonguinho-covered",
+      "spotLabel": "COB-01",
+      "driverName": "Motorista de Teste",
+      "driverEmail": "motorista@exemplo.test",
+      "driverPhone": "+55 21 90000-0000",
+      "driverId": "mock-driver",
+      "vehicleId": "mock-vehicle",
+      "vehiclePlate": "ABC1D23",
+      "vehicleModel": "Hatch de teste",
+      "startAt": "2026-10-08T15:00:00.000Z",
+      "endAt": "2026-10-08T16:00:00.000Z",
+      "durationHours": 1,
+      "spotType": "Coberta",
+      "spotFeatures": [
+        "Coberta"
+      ],
+      "paymentMethod": "Pix",
+      "paymentMethodId": null,
+      "hourlyRate": 6,
+      "totalAmount": 6,
+      "paymentStatus": "simulated_refunded",
+      "status": "cancelled",
+      "createdAt": "2026-10-06T09:46:01.392Z",
+      "id": 5,
+      "updatedAt": "2026-10-06T10:07:13.286Z",
+      "paymentAdjustments": [
+        {
+          "id": "adjustment-f521c216-353d-46d7-bdb3-4e568b780244",
+          "type": "simulated_charge",
+          "amount": 6,
+          "status": "simulated",
+          "paymentMethod": "Pix",
+          "createdAt": "2026-10-06T10:06:37.127Z"
+        },
+        {
+          "id": "adjustment-047d3af6-1501-42ed-9cdd-78e19a9bc5cf",
+          "type": "simulated_refund",
+          "amount": 12,
+          "status": "simulated",
+          "paymentMethod": "Pix",
+          "createdAt": "2026-10-06T10:07:13.286Z"
+        },
+        {
+          "id": "adjustment-c38ae391-5d8b-402f-9d51-ed452e2875ae",
+          "type": "simulated_refund",
+          "reason": "cancellation",
+          "amount": 6,
+          "status": "simulated",
+          "paymentMethod": "Pix",
+          "createdAt": "2026-10-06T10:07:19.612Z"
+        }
+      ],
+      "cancelledAt": "2026-10-06T10:07:19.612Z"
+    }
+  ],
+  "reviews": [],
+  "users": [
+    {
+      "name": "Daniel Dezerto Rimes",
+      "email": "danieldezertorimes@gmail.com",
+      "phone": "+5521991745461",
+      "vehicles": [
+        {
+          "id": "vehicle-d906f476-f2ca-4e3e-bd6d-708380ca599e",
+          "plate": "ABC1D23",
+          "model": "Honda Civic",
+          "color": "Prata"
+        }
+      ],
+      "id": "user-2ff1b653-e728-4995-8de3-7a2ef19801bf",
+      "passwordDigest": "22d51714454056de9b1e94fdc8753ae6d1d648928eb4063b317814d66441318a",
+      "createdAt": "2026-10-06T05:56:11.064Z"
+    },
+    {
+      "id": "mock-driver",
+      "name": "Motorista de Teste",
+      "email": "motorista@exemplo.test",
+      "phone": "+55 21 90000-0000",
+      "vehicles": [
+        {
+          "id": "mock-vehicle",
+          "plate": "ABC1D23",
+          "model": "Hatch de teste",
+          "color": "Prata"
+        }
+      ],
+      "passwordDigest": "9983696b7350cb915713a5da642064e5b29c80aa84187122cb3723a0f902b197",
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    }
+  ],
+  "parkingAccounts": [
+    {
+      "id": "partner-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e",
+      "email": "danieldezertorimes@gmail.com",
+      "cnpj": "12123123123412",
+      "passwordDigest": "258d79ac0e8a93f543b538fbe388dee600d25ec5a7536a0f224eb5df9039d4be",
+      "parkingIds": [
+        "park-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e"
+      ],
+      "createdAt": "2026-10-06T06:45:36.318Z"
+    },
+    {
+      "id": "mock-valonguinho-partner",
+      "email": "valonguinho@exemplo.test",
+      "cnpj": "00000000000272",
+      "passwordDigest": "057f2a6fd7f74fd3da9d980f74812fb36bb025b0bc3f2f479b77165914267f7c",
+      "parkingIds": [
+        "mock-estacionamento-valonguinho"
+      ],
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    },
+    {
+      "id": "mock-parking-partner",
+      "email": "parceiro@exemplo.test",
+      "cnpj": "00000000000191",
+      "passwordDigest": "9d172ead317aa9009ed296887eccf903e76a4838066a03202c93676e8d749f69",
+      "parkingIds": [
+        "mock-parking"
+      ],
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    }
+  ],
+  "administrators": [
+    {
+      "name": "Daniel Dezerto Rimes",
+      "email": "danieldezertorimes@gmail.com",
+      "cpf": "12312312312",
+      "id": "admin-79ba7aaf-d31f-44e3-ade1-1d30ecbb5547",
+      "passwordDigest": "51f75e68de40ad19a410e6507d60612f0e6e7007a649e474c71b277a6823790f",
+      "createdAt": "2026-10-06T06:43:45.676Z"
+    },
+    {
+      "id": "mock-administrator",
+      "name": "Administrador de Teste",
+      "email": "administrador@exemplo.test",
+      "cpf": "00000000000",
+      "passwordDigest": "1a1eb04f0a4d3bcf56b86b18388ef0981fd5302043b65a51d1be05c5fe1d09a1",
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    }
+  ],
+  "paymentMethods": [],
+  "reports": [
+    {
+      "id": "report-849014f4-416d-4096-ac46-07c95ff0ced9",
+      "driverId": "user-2ff1b653-e728-4995-8de3-7a2ef19801bf",
+      "parkingId": "park-def",
+      "driverName": "Daniel Dezerto Rimes",
+      "driverEmail": "danieldezertorimes@gmail.com",
+      "parkingName": "Estacionamento DEF",
+      "category": "Danos ao veículo",
+      "details": "abcdef",
+      "status": "answered",
+      "createdAt": "2026-10-06T06:20:17.380Z",
+      "adminResponse": "estacionamento pagará pelo dano",
+      "answeredAt": "2026-10-06T06:46:05.290Z",
+      "administratorId": "admin-79ba7aaf-d31f-44e3-ade1-1d30ecbb5547",
+      "penalty": "7 dias"
+    }
+  ],
+  "partnerRequests": [
+    {
+      "id": "partner-request-2f93edac-a5f4-4700-a867-5e552d90706e",
+      "email": "danieldezertorimes@gmail.com",
+      "cnpj": "12123123123412",
+      "passwordDigest": "258d79ac0e8a93f543b538fbe388dee600d25ec5a7536a0f224eb5df9039d4be",
+      "parking": {
+        "id": "park-a91d95ee-90bb-4d0f-a6a3-38bf6dea14b3",
+        "name": "Daniel Dezerto Rimes",
+        "address": "Rua Professor Otacílio, 30",
+        "googlePlaceId": "teste",
+        "partner": true,
+        "rating": 4.5,
+        "hourlyRates": {
+          "Coberta": {
+            "upTo1Hour": 6,
+            "upTo4Hours": 6,
+            "over4Hours": 6
+          },
+          "Descoberta": {
+            "upTo1Hour": 5,
+            "upTo4Hours": 5,
+            "over4Hours": 5
+          },
+          "Especial": {
+            "upTo1Hour": 7,
+            "upTo4Hours": 7,
+            "over4Hours": 7
+          }
+        },
+        "toleranceMinutes": 15,
+        "openingHours": {
+          "1": {
+            "open": "06:00",
+            "close": "23:00"
+          },
+          "2": {
+            "open": "06:00",
+            "close": "23:00"
+          },
+          "3": {
+            "open": "06:00",
+            "close": "23:00"
+          },
+          "4": {
+            "open": "06:00",
+            "close": "23:00"
+          },
+          "5": {
+            "open": "06:00",
+            "close": "23:00"
+          },
+          "6": {
+            "open": "06:00",
+            "close": "23:00"
+          }
+        },
+        "allowsOvernight": true
+      },
+      "spots": [
+        {
+          "label": "G101",
+          "type": "Coberta",
+          "features": [
+            "Coberta",
+            "Especial"
+          ]
+        },
+        {
+          "label": "G201",
+          "type": "Descoberta",
+          "features": [
+            "Descoberta"
+          ]
+        }
+      ],
+      "status": "approved",
+      "createdAt": "2026-10-06T06:40:14.873Z",
+      "reviewedAt": "2026-10-06T06:45:36.554Z",
+      "reviewedBy": "admin-79ba7aaf-d31f-44e3-ade1-1d30ecbb5547"
+    }
+  ]
+}

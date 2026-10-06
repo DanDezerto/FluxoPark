@@ -1,0 +1,12 @@
+{
+  "administrators": [
+    {
+      "id": "mock-administrator",
+      "name": "Administrador de Teste",
+      "email": "administrador@exemplo.test",
+      "cpf": "00000000000",
+      "passwordDigest": "1a1eb04f0a4d3bcf56b86b18388ef0981fd5302043b65a51d1be05c5fe1d09a1",
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    }
+  ]
+}

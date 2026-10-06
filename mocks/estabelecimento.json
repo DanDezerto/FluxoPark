@@ -1,0 +1,103 @@
+{
+  "parkingAccounts": [
+    {
+      "id": "mock-parking-partner",
+      "email": "parceiro@exemplo.test",
+      "cnpj": "00000000000191",
+      "passwordDigest": "9d172ead317aa9009ed296887eccf903e76a4838066a03202c93676e8d749f69",
+      "parkingIds": [
+        "mock-parking"
+      ],
+      "createdAt": "2026-01-01T12:00:00.000Z"
+    }
+  ],
+  "parkings": [
+    {
+      "id": "mock-parking",
+      "googlePlaceId": null,
+      "name": "Estacionamento de Teste",
+      "address": "Rua de Exemplo, 100, Centro, Niterói - RJ",
+      "partner": true,
+      "rating": 4.5,
+      "hourlyRates": {
+        "Coberta": {
+          "upTo1Hour": 8,
+          "upTo4Hours": 6,
+          "over4Hours": 5
+        },
+        "Descoberta": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        },
+        "Especial": {
+          "upTo1Hour": 5,
+          "upTo4Hours": 4,
+          "over4Hours": 3
+        }
+      },
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "1": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "2": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "3": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "4": {
+          "open": "08:00",
+          "close": "22:00"
+        },
+        "5": {
+          "open": "08:00",
+          "close": "23:00"
+        },
+        "6": {
+          "open": "08:00",
+          "close": "23:00"
+        }
+      },
+      "allowsOvernight": true
+    }
+  ],
+  "spots": [
+    {
+      "id": "mock-spot-covered",
+      "parkingId": "mock-parking",
+      "label": "COB-01",
+      "type": "Coberta",
+      "features": [
+        "Coberta"
+      ]
+    },
+    {
+      "id": "mock-spot-open",
+      "parkingId": "mock-parking",
+      "label": "DES-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta"
+      ]
+    },
+    {
+      "id": "mock-spot-special",
+      "parkingId": "mock-parking",
+      "label": "ESP-01",
+      "type": "Descoberta",
+      "features": [
+        "Descoberta",
+        "Especial"
+      ]
+    }
+  ]
+}
