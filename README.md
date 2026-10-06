@@ -2,9 +2,10 @@
 
 ## Aplicação React
 
-O projeto usa React 18 com Vite e possui duas entradas: `FluxoPark/paginaInicialMotorista.html`
-e `FluxoPark/paginaReserva.html`. O JSX está em `FluxoPark/src`, organizado em
-páginas, componentes, módulos de API, providers e validação. A busca usa
+O projeto usa React 18 com Vite e mantém páginas HTML separadas para busca,
+reserva, conta do motorista, métodos de pagamento, denúncias e administração.
+O JSX está em `FluxoPark/src`, organizado em páginas, componentes, módulos de
+API, providers e validação. A busca usa
 TanStack Query para carregar a lista local; a reserva usa TanStack Query para
 consultar os estacionamentos, vagas e reservas e para gravar a solicitação.
 React Hook Form com Zod valida os dados do motorista. Tailwind continua
@@ -41,7 +42,10 @@ No PowerShell do Windows, use `npm.cmd run api` e `npm.cmd run dev` se o comando
 Vite, normalmente `http://localhost:5173/paginaInicialMotorista.html` ou
 `http://localhost:5173/paginaReserva.html?placeId=demo-park-abc`. O proxy do
 Vite encaminha `/parkings`, `/spots`, `/reservations` e `/reviews` para a API em
-`localhost:3000`.
+`localhost:3000`. O proxy encaminha também `/paymentMethods`, `/reports`,
+`/partnerRequests`, `/administrators` e `/admin`. A API customizada em
+`server.js` valida o código de cadastro administrativo antes de criar uma
+conta.
 
 Para gerar e servir a versão de produção junto com o json-server:
 
@@ -69,10 +73,48 @@ mas isso **não é autenticação segura**: o json-server expõe as coleções e
 aplica autorização. Use somente dados fictícios e nunca reutilize senhas reais.
 
 Após entrar como motorista, `contaUsuario.html` permite editar nome e celular,
-manter veículos e consultar reservas associadas ao e-mail. O login de parceiro
-abre a manutenção dos estacionamentos associados à conta. Para um serviço real,
-essas operações precisam migrar para um backend com armazenamento de senhas
-apropriado, sessão protegida e autorização no servidor.
+manter veículos e consultar reservas. `metodosPagamento.html` permite manter
+cartões, e `minhasDenuncias.html` mostra o andamento e as respostas recebidas.
+Na conta do motorista, reservas confirmadas podem ser editadas ou canceladas
+enquanto faltarem pelo menos 24 horas para o início. A edição revalida horário
+de funcionamento e disponibilidade da vaga; reduzir a duração registra um
+estorno demonstrativo e aumentá-la exige confirmar uma cobrança adicional
+demonstrativa, ambos calculados pela tarifa por hora original da reserva. O
+cancelamento registra um estorno demonstrativo do valor da reserva. Essas
+alterações são apenas registros locais em `db.json`: não há movimentação real
+de dinheiro nem integração com um processador de pagamentos.
+Reservas exigem um veículo cadastrado e permitem selecionar ou cadastrar outro
+carro. Os horários de entrada e saída são selecionados separadamente; as horas
+e o valor são calculados pela diferença. O estabelecimento define os horários
+de funcionamento por dia e se permite permanência durante a noite. As tags
+Coberta, Descoberta e Especial podem ser combinadas na vaga e na busca. Coberta
+e Descoberta são mutuamente exclusivas; Especial pode ser combinada com uma
+delas.
+
+As tarifas do estabelecimento são configuradas por tag e por duração total:
+até 1 hora, mais de 1 até 4 horas e mais de 4 horas. A taxa da faixa selecionada
+é aplicada a todas as horas reservadas; a última faixa também vale acima de 12
+horas. A reserva pode durar até 24 horas. O valor por hora efetivamente aplicado
+e o total são exibidos antes da confirmação.
+
+Cartões são demonstrativos: o banco local conserva apenas bandeira, últimos
+quatro dígitos, validade, titular e função crédito/débito. O número completo e
+o CVV não são armazenados nem existe processador de pagamentos. Não use dados
+reais. O login de parceiro abre a manutenção dos estacionamentos associados à
+conta; novos cadastros ficam pendentes até a aprovação administrativa.
+
+O cadastro de administrador exige um código verificado pela rota
+`POST /admin/register` do servidor local. O valor padrão para desenvolvimento é
+`administrador123`; substitua-o definindo `ADMIN_REGISTRATION_CODE` no ambiente
+do servidor. Administradores entram com e-mail e senha e usam
+`tratamentoRequisicoes.html` para responder denúncias, aplicar banimentos e
+aprovar ou recusar solicitações de parceiros.
+
+Esses fluxos continuam sendo uma demonstração: json-server expõe as coleções e
+não protege as rotas de leitura e escrita com autenticação/autorização completa.
+O resumo SHA-256 no cliente também não equivale a armazenamento de senha seguro.
+Para produção, migre as contas, pagamentos, denúncias e decisões administrativas
+para um backend com autenticação, autorização e armazenamento apropriados.
 
 Na página inicial, o botão **Testar estacionamentos do json-server** carrega
 os parceiros e tarifas cadastrados na API. Essa lista é para testar os dados e
@@ -80,17 +122,25 @@ links de reserva; ela não é filtrada geograficamente pelo destino e não mostr
 distâncias fictícias. Para busca real por proximidade e rotas, use o campo de
 destino com o Google Maps configurado.
 
-`db.json` contém seis estacionamentos parceiros e 26 vagas, com tarifas por
-tipo de vaga e tolerâncias de chegada. As coleções de reservas e avaliações
-iniciam vazias. A reserva oferece horários de início em intervalos de 30
-minutos a partir das 06:00; a duração selecionada deve terminar até as 23:00,
-e períodos já reservados deixam de aparecer como disponíveis. A tela consulta
+`db.json` contém estacionamentos e vagas de demonstração, incluindo o
+Estacionamento do Plaza Shopping Niterói e o Estacionamento Bay Market para
+testes próximos ao Plaza Shopping Niterói. Os dados de parceria e tarifa desses
+dois registros são exemplos locais, não confirmam uma relação comercial com os
+estabelecimentos. A reserva consulta o horário de funcionamento, as tags, a
+permissão de pernoite e os intervalos já registrados. A tela consulta
 essa API para exibir tarifas e disponibilidade por período e vaga; a confirmação
 cria um registro em `/reservations`. A disponibilidade considera intervalos
 sobrepostos de reservas confirmadas/ativas. O pagamento continua simulado e
 nenhuma cobrança é feita. O json-server não oferece transações nem garante
 exclusividade em tentativas simultâneas, portanto não é adequado para reservas
 reais.
+
+Os perfis genéricos para testes de motorista, parceiro e administrador estão em
+`mocks/`; as credenciais e todos os dados preenchidos estão descritos em
+`DADOS_MOCKS.md`. O arquivo `mocks/estabelecimento-valonguinho.json` também
+contém um estabelecimento associado ao Place ID do local no Google Maps; tarifas
+e vagas desse mock são genéricas. Esses fixtures são somente para
+desenvolvimento local e não confirmam parceria comercial.
 
 Para permitir reservar um estacionamento encontrado pelo Google Maps, cadastre
 seu ID real em `googlePlaceId` no estacionamento correspondente de `db.json`.
@@ -100,28 +150,35 @@ IDs parceiros da página de busca continua sendo configurada em
 
 ## Google Maps
 
-A página do motorista carrega a chave local de
-`FluxoPark/public/config.local.js`, que é ignorado pelo Git. Para configurá-la, copie `FluxoPark/public/config.example.js` para
-`FluxoPark/public/config.local.js` e preencha `googleMapsApiKey` com sua chave.
-Esse arquivo local precisa existir para que o Vite o sirva durante o
-desenvolvimento e o inclua no build de produção; ele está no `.gitignore` e não
-deve ser enviado ao repositório.
+A página do motorista carrega a configuração de
+`FluxoPark/public/config.local.js`, que é ignorado pelo Git. Em um clone novo,
+copie `FluxoPark/public/config.example.js` para
+`FluxoPark/public/config.local.js` e configure sua chave e IDs de lugares
+parceiros. Esse arquivo é servido ao navegador e incluído no build local, mas
+nunca deve ser versionado.
 
 Para usar o mapa e as buscas reais, configure uma chave válida do Google Maps
 Platform e habilite faturamento, Maps JavaScript API, Places API (New) e Routes
 API no Google Cloud. Restrinja a chave aos domínios em que a aplicação será
 publicada e às APIs necessárias. Chaves de API usadas no navegador podem ser
-vistas por quem acessa o site; o `.gitignore` evita enviá-la ao repositório,
-mas as restrições do Google Cloud são necessárias para protegê-la contra uso
-indevido. Sem a chave local, a tela mantém os resultados identificados como
-dados demonstrativos.
+vistas por quem acessa o site. O `.gitignore` só evita o envio acidental ao Git;
+não torna secreta uma chave usada no navegador. Restrinja-a no Google Cloud aos
+domínios e APIs necessários e revogue-a se tiver sido exposta. A interface
+informa quando a configuração local ou a autorização do Google impede carregar
+o mapa.
 
-Os estacionamentos são comparados pela distância da rota de carro entre o
-estacionamento e o destino; o tempo estimado de direção também é exibido.
+O campo de destino usa sugestões do Google Places enquanto o usuário digita
+(após três caracteres). Selecionar uma sugestão mantém o lugar resolvido para a
+busca de estacionamentos; se nenhuma sugestão for selecionada, a busca por texto
+continua disponível.
+
+Os estacionamentos são comparados pela distância da rota a pé entre o
+estacionamento e o destino; o tempo estimado de caminhada também é exibido. Ao
+selecionar um card ou marcador, o trecho para caminhada é traçado no mapa.
 O Google Places restringe os resultados iniciais a um raio em linha reta, e
 os trajetos dependem da cobertura e da cota da Routes API. Se a cota de rotas
 for excedida, a interface informa quantas rotas estão indisponíveis e não
-apresenta essas distâncias como se fossem trajetos de carro.
+apresenta essas distâncias como se fossem trajetos caminháveis.
 
 Para marcar estacionamentos parceiros no mapa, adicione os IDs de lugar do
 Google à lista `googleMapsPartnerPlaceIds` em
@@ -132,3 +189,9 @@ com o FluxoPark, portanto essa lista deve conter apenas parceiros confirmados.
 Tailwind CSS e as fontes são carregados por CDN nesta versão; React e as
 bibliotecas de formulário/consulta são instalados pelo npm e empacotados pelo
 Vite.
+
+## Documentação
+
+- [Manual de instalação](./MANUAL_INSTALACAO.md)
+- [Manual de operação](./MANUAL_OPERACAO.md)
+- [Manual do usuário](./MANUAL_USUARIO.md)

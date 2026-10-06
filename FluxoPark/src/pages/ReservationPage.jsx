@@ -3,32 +3,32 @@ import { createRoot } from "react-dom/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, PaymentStep, ReservationConfirmation, ReservationDatePicker, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker, TimeSlotPicker } from "../components/reservation/ReservationComponents.jsx";
+import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, PaymentStep, ReservationConfirmation, ReservationDatePicker, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker } from "../components/reservation/ReservationComponents.jsx";
 import { AppProviders } from "../providers/AppProviders.jsx";
 import { createReservation, readCollection } from "../lib/api.js";
+import {createDemoId, demoRequest, readDemoSession} from "../lib/demoAccounts.js";
+import {calculateReservationPrice, getRateTierLabel} from "../lib/parkingPricing.js";
+import {createReservationInterval, isWithinParkingHours} from "../lib/reservationRules.js";
+import {getSpotFeatures, SPOT_FEATURES, toggleSpotFeature} from "../lib/spotFeatures.js";
 import { reservationSchema } from "../lib/reservationSchema.js";
 import "../../paginaReserva.css";
 
-		const durations = [1, 2, 4, 8];
-		const timeSlots = Array.from({length: 35}, (_, index) => {
-			const minutes = 6 * 60 + index * 30;
-			return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
-		});
 		function localDateValue(date = new Date()) {
 			const offset = date.getTimezoneOffset() * 60000;
 			return new Date(date.getTime() - offset).toISOString().slice(0, 10);
 		}
 
-		function getBookingInterval(date, time, duration) {
-			const start = new Date(`${date}T${time}:00`);
-			const end = new Date(start.getTime() + duration * 60 * 60 * 1000);
-			return { startAt: start.toISOString(), endAt: end.toISOString() };
+		function nextLocalDateValue(dateValue) {
+			const date = new Date(`${dateValue}T12:00:00`);
+			date.setDate(date.getDate() + 1);
+			return localDateValue(date);
 		}
 
 		function App() {
 			const params = React.useMemo(() => new URLSearchParams(window.location.search), []);
 			const placeId = params.get("placeId") || "";
 			const queryClient = useQueryClient();
+			const driverSession = React.useMemo(() => readDemoSession("driver"), []);
 			const initialReservationDate = React.useMemo(() => localDateValue(), []);
 			const {register, handleSubmit, watch, setValue, formState:{errors, isSubmitting}} = useForm({
 				resolver: zodResolver(reservationSchema),
@@ -42,9 +42,16 @@ import "../../paginaReserva.css";
 			const reservationDate = watch("reservationDate");
 			const formValues = watch();
 			const [reservationTime, setReservationTime] = React.useState("");
-			const [duration, setDuration] = React.useState(2);
-			const [spotType, setSpotType] = React.useState("Comum");
+			const [endTime, setEndTime] = React.useState("");
+			const [differentExitDate, setDifferentExitDate] = React.useState(false);
+			const [exitDate, setExitDate] = React.useState(initialReservationDate);
+			const [selectedFeatures, setSelectedFeatures] = React.useState([]);
 			const [paymentMethod, setPaymentMethod] = React.useState("Pix");
+			const [selectedCardId, setSelectedCardId] = React.useState("");
+			const [driverAccount, setDriverAccount] = React.useState(null);
+			const [selectedVehicleId, setSelectedVehicleId] = React.useState("");
+			const [vehicleDraft, setVehicleDraft] = React.useState({plate:"", model:"", color:""});
+			const [vehicleFormOpen, setVehicleFormOpen] = React.useState(false);
 			const [confirmation, setConfirmation] = React.useState("");
 			const [submittedReservation, setSubmittedReservation] = React.useState(null);
 			const [isReviewing, setIsReviewing] = React.useState(false);
@@ -58,12 +65,18 @@ import "../../paginaReserva.css";
 				reservationDate !== initialReservationDate ||
 				Boolean(formValues.driverName?.trim() || formValues.driverEmail?.trim() || formValues.driverPhone?.trim()) ||
 				Boolean(reservationTime || selectedSpotId) ||
-				duration !== 2 ||
-				spotType !== "Comum" ||
+				Boolean(endTime) ||
+				differentExitDate ||
+				selectedFeatures.length > 0 ||
 				paymentMethod !== "Pix";
 			const parkingQuery = useQuery({queryKey:["parkings"], queryFn:() => readCollection("parkings")});
 			const spotsQuery = useQuery({queryKey:["spots"], queryFn:() => readCollection("spots")});
 			const reservationsQuery = useQuery({queryKey:["reservations"], queryFn:() => readCollection("reservations")});
+			const paymentMethodsQuery = useQuery({
+				queryKey:["paymentMethods", driverSession?.id],
+				queryFn:() => readCollection("paymentMethods"),
+				enabled:Boolean(driverSession)
+			});
 			const reservationMutation = useMutation({
 				mutationFn:createReservation,
 				onSuccess:savedReservation => {
@@ -76,22 +89,59 @@ import "../../paginaReserva.css";
 			const parkings = parkingQuery.data || [];
 			const allSpots = spotsQuery.data || [];
 			const reservations = reservationsQuery.data || [];
-			const isLoading = parkingQuery.isLoading || spotsQuery.isLoading || reservationsQuery.isLoading;
-			const apiError = parkingQuery.error?.message || spotsQuery.error?.message || reservationsQuery.error?.message || "";
+			const paymentMethods = (paymentMethodsQuery.data || []).filter(method => method.userId === driverSession?.id);
+			const savedCard = paymentMethod === "Card" ? paymentMethods.find(method => method.id === selectedCardId) : null;
+			const isLoading = parkingQuery.isLoading || spotsQuery.isLoading || reservationsQuery.isLoading || (Boolean(driverSession) && paymentMethodsQuery.isLoading);
+			const apiError = parkingQuery.error?.message || spotsQuery.error?.message || reservationsQuery.error?.message || paymentMethodsQuery.error?.message || "";
 			const parking = placeId
 				? parkings.find(item => item.googlePlaceId === placeId)
 				: parkings.find(item => item.id === params.get("parkingId")) || parkings[0];
 			const spots = allSpots.filter(spot => spot.parkingId === parking?.id);
-			const parkingError = !isLoading && !apiError && !parking
+			const activeBan = parking?.banned && (!parking.banUntil || new Date(parking.banUntil) > new Date());
+			const parkingError = activeBan
+				? `Este estabelecimento está temporariamente indisponível${parking.banUntil ? ` até ${new Intl.DateTimeFormat("pt-BR").format(new Date(parking.banUntil))}` : " por tempo indeterminado"}.`
+				: !isLoading && !apiError && !parking
 				? placeId
 					? "Este estacionamento ainda não está cadastrado na API local. Cadastre o ID do Google Maps no db.json para habilitar reservas."
 					: "Nenhum estacionamento foi encontrado na API local."
 				: apiError;
 			const parkingName = parking?.name || params.get("name") || "Estacionamento";
 			const parkingAddress = parking?.address || params.get("address") || "Local não cadastrado";
-			const hourlyRate = Number(parking?.hourlyRates?.[spotType] || 0);
-			const price = duration * hourlyRate;
 			const minimumDate = localDateValue();
+			const mayCrossMidnight = Boolean(parking?.allowsOvernight);
+			const effectiveExitDate = differentExitDate ? exitDate : "";
+			const interval = createReservationInterval(reservationDate, reservationTime, endTime, mayCrossMidnight, effectiveExitDate);
+			const endDate = interval ? localDateValue(new Date(interval.endAt)) : reservationDate;
+			const duration = interval?.durationHours || 0;
+			const selectedSpot = spots.find(spot => spot.id === selectedSpotId);
+			const selectedSpotFeatures = selectedSpot ? getSpotFeatures(selectedSpot) : selectedFeatures;
+			const pricedFeatures = selectedSpot
+				? selectedSpotFeatures
+				: selectedFeatures.length ? selectedFeatures : SPOT_FEATURES;
+			const reservationSpotType = selectedSpotFeatures.join(", ") || "Qualquer";
+			const {hourlyRate, total:price} = calculateReservationPrice(parking?.hourlyRates || {}, pricedFeatures, duration);
+			const rateTierLabel = duration ? getRateTierLabel(duration) : "";
+			const hoursValid = Boolean(interval && parking && isWithinParkingHours(parking, interval));
+			const selectedVehicle = driverAccount?.vehicles?.find(item => item.id === selectedVehicleId) || null;
+			const reservationTimeError = reservationTime && endTime && !interval
+				? differentExitDate
+					? "A data e o horário de saída devem ser posteriores à entrada, dentro de um período de até 24 horas."
+					: mayCrossMidnight ? "O período informado não é válido." : "Este estabelecimento não permite atravessar a meia-noite."
+				: interval && !hoursValid ? "O período informado está fora do horário de funcionamento do estabelecimento." : "";
+
+			React.useEffect(() => {
+				if (!driverSession) return;
+				demoRequest(`users/${encodeURIComponent(driverSession.id)}`).then(account => {
+					setDriverAccount(account);
+					setValue("driverName", account.name || "");
+					setValue("driverEmail", account.email || "");
+					setValue("driverPhone", account.phone || "");
+					if (account.vehicles?.length) setSelectedVehicleId(account.vehicles[0].id);
+				}).catch(error => {
+					console.error("Não foi possível carregar a conta do motorista para a reserva.", error);
+					setFormError(`${error.message} Não foi possível carregar seus veículos.`);
+				});
+			}, [driverSession, setValue]);
 
 			React.useEffect(() => {
 				if (!hasUnsavedChanges || confirmation) return undefined;
@@ -103,7 +153,6 @@ import "../../paginaReserva.css";
 				return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
 			}, [hasUnsavedChanges, confirmation]);
 
-			const interval = reservationTime ? getBookingInterval(reservationDate, reservationTime, duration) : null;
 			function isSpotAvailable(spot, requestedInterval = interval, reservationList = reservations) {
 				if (!requestedInterval) return false;
 				const start = new Date(requestedInterval.startAt).getTime();
@@ -115,25 +164,50 @@ import "../../paginaReserva.css";
 					new Date(reservation.endAt).getTime() > start
 				);
 			}
-			const typedSpots = spots.filter(spot => spot.type === spotType);
-			const availableSlots = timeSlots.filter(time => {
-				if (!reservationDate) return false;
-				const [hours, minutes] = time.split(":").map(Number);
-				if (hours * 60 + minutes + duration * 60 > 23 * 60) return false;
-				if (reservationDate === minimumDate) {
-					const now = new Date();
-					if (hours * 60 + minutes <= now.getHours() * 60 + now.getMinutes()) return false;
-				}
-				const slotInterval = getBookingInterval(reservationDate, time, duration);
-				return typedSpots.some(spot => isSpotAvailable(spot, slotInterval));
+			const typedSpots = spots.filter(spot => {
+				const features = getSpotFeatures(spot);
+				return selectedFeatures.every(feature => features.includes(feature));
 			});
 
 			function updateReservationDate(date) {
 				setValue("reservationDate", date, {shouldDirty:true, shouldValidate:true});
 				setReservationTime("");
+				setEndTime("");
+				setExitDate(current => differentExitDate
+					? (!date || current < nextLocalDateValue(date) ? date ? nextLocalDateValue(date) : initialReservationDate : current)
+					: (!date || current < date ? date || initialReservationDate : current));
 				setSelectedSpotId("");
 				setFormError("");
 				setIsReviewing(false);
+			}
+
+			async function addReservationVehicle(event) {
+				event?.preventDefault();
+				if (!driverAccount) return;
+				const plate = vehicleDraft.plate.trim().toUpperCase();
+				if (!plate || !vehicleDraft.model.trim() || !vehicleDraft.color.trim()) {
+					setFormError("Preencha placa, modelo e cor do veículo.");
+					return;
+				}
+				if (driverAccount.vehicles?.some(vehicle => vehicle.plate.toUpperCase() === plate)) {
+					setFormError("Esse veículo já está cadastrado na sua conta.");
+					return;
+				}
+				const vehicle = {...vehicleDraft, id:createDemoId("vehicle"), plate, model:vehicleDraft.model.trim(), color:vehicleDraft.color.trim()};
+				const updated = {...driverAccount, vehicles:[...(driverAccount.vehicles || []), vehicle]};
+				try {
+					await demoRequest(`users/${encodeURIComponent(driverAccount.id)}`, {
+						method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(updated)
+					});
+					setDriverAccount(updated);
+					setSelectedVehicleId(vehicle.id);
+					setVehicleDraft({plate:"", model:"", color:""});
+					setVehicleFormOpen(false);
+					setFormError("");
+				} catch (error) {
+					console.error("Não foi possível cadastrar o veículo durante a reserva.", error);
+					setFormError(`${error.message} O veículo não foi cadastrado.`);
+				}
 			}
 
 			function handleBack() {
@@ -145,8 +219,18 @@ import "../../paginaReserva.css";
 			}
 
 			async function submitReservation() {
-				if (!parking || !interval || !selectedSpotId) {
-					setFormError("Selecione um horário e uma vaga disponível para continuar.");
+				if (!driverSession || !driverAccount || !selectedVehicle) {
+					setFormError("Entre como motorista e selecione um veículo cadastrado para continuar.");
+					setIsReviewing(false);
+					return;
+				}
+				if (!parking || !interval || !hoursValid || !selectedSpotId) {
+					setFormError(reservationTimeError || "Informe entrada e saída dentro do horário de funcionamento e escolha uma vaga.");
+					setIsReviewing(false);
+					return;
+				}
+				if (reservationDate === minimumDate && new Date(interval.startAt) <= new Date()) {
+					setFormError("O horário de entrada deve ser posterior ao horário atual.");
 					setIsReviewing(false);
 					return;
 				}
@@ -189,8 +273,8 @@ import "../../paginaReserva.css";
 				}
 			}
 
-			async function completePayment() {
-				if (!parking || !interval || !selectedSpotId || !paymentCode) {
+			async function completePayment(cardMetadata = null) {
+				if (!parking || !interval || !selectedSpotId || !paymentCode || !selectedVehicle) {
 					setFormError("Não foi possível recuperar os dados da reserva. Volte e revise a solicitação.");
 					return;
 				}
@@ -214,6 +298,24 @@ import "../../paginaReserva.css";
 						setIsReviewing(false);
 						return;
 					}
+					let savedDuringPayment = null;
+					if (cardMetadata) {
+						savedDuringPayment = {
+							id:createDemoId("card"), userId:driverSession.id, ...cardMetadata,
+							isDefault:paymentMethods.length === 0, createdAt:new Date().toISOString()
+						};
+						await demoRequest("paymentMethods", {
+							method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(savedDuringPayment)
+						});
+						await queryClient.invalidateQueries({queryKey:["paymentMethods", driverSession.id]});
+					}
+					const chargedMethod = paymentMethod === "Pix"
+						? "Pix"
+						: savedDuringPayment
+							? `${savedDuringPayment.brand} •••• ${savedDuringPayment.last4} (${savedDuringPayment.type === "credit" ? "crédito" : "débito"})`
+							: savedCard
+								? `${savedCard.brand} •••• ${savedCard.last4} (${savedCard.type === "credit" ? "crédito" : "débito"})`
+								: "Cartão";
 					const reservation = {
 						code:paymentCode,
 						parkingId: parking.id,
@@ -223,11 +325,17 @@ import "../../paginaReserva.css";
 						driverName:formValues.driverName,
 						driverEmail:formValues.driverEmail,
 						driverPhone:formValues.driverPhone,
+						driverId:driverSession.id,
+						vehicleId:selectedVehicle.id,
+						vehiclePlate:selectedVehicle.plate,
+						vehicleModel:selectedVehicle.model,
 						startAt: interval.startAt,
 						endAt: interval.endAt,
 						durationHours: duration,
-						spotType,
-						paymentMethod,
+						spotType:reservationSpotType,
+						spotFeatures:selectedSpotFeatures,
+						paymentMethod:chargedMethod,
+						paymentMethodId:(savedDuringPayment || savedCard)?.id || null,
 						hourlyRate,
 						totalAmount: price,
 						paymentStatus: "simulated_approved",
@@ -245,12 +353,18 @@ import "../../paginaReserva.css";
 
 			if (isPaying) {
 				return <PaymentStep
-					paymentMethod={paymentMethod}
+					paymentMethod={savedCard ? `${savedCard.brand} •••• ${savedCard.last4}` : paymentMethod === "NewCard" ? "Novo cartão" : paymentMethod}
 					price={price}
+					hourlyRate={hourlyRate}
+					rateTierLabel={rateTierLabel}
 					parkingName={parkingName}
+					reservationDate={reservationDate}
 					reservationTime={reservationTime}
-					spotType={spotType}
+					endTime={endTime}
+					endDate={endDate}
+					spotType={reservationSpotType}
 					spotLabel={spots.find(spot => spot.id === selectedSpotId)?.label}
+					savedCard={savedCard}
 					paymentCode={paymentCode}
 					onBack={() => { setIsPaying(false); setFormError(""); }}
 					onComplete={completePayment}
@@ -286,26 +400,46 @@ import "../../paginaReserva.css";
 									<div className="mt-3 grid gap-4 sm:grid-cols-2">
 										<div className="grid gap-1.5 text-sm font-semibold sm:col-span-2">
 											<label htmlFor="reservation-date">Data</label>
-											<ReservationDatePicker value={reservationDate} minDate={minimumDate} error={errors.reservationDate?.message} onChange={updateReservationDate} disabled={isLoading || Boolean(parkingError)} />
+											<ReservationDatePicker id="reservation-date" value={reservationDate} minDate={minimumDate} error={errors.reservationDate?.message} onChange={updateReservationDate} disabled={isLoading || Boolean(parkingError)} />
 										</div>
-										<TimeSlotPicker
-											availableSlots={availableSlots}
-											reservationTime={reservationTime}
-											timeSlots={timeSlots}
-											disabled={isLoading || Boolean(parkingError)}
-											onSelect={time => { setReservationTime(time); setSelectedSpotId(""); setFormError(""); setIsReviewing(false); }}
-											error={formError}
-										/>
-										<label className="grid gap-1.5 text-sm font-semibold" htmlFor="reservation-duration">Duração
-											<select id="reservation-duration" value={duration} onChange={event => { setDuration(Number(event.target.value)); setSelectedSpotId(""); setIsReviewing(false); }} disabled={isLoading || Boolean(parkingError)} className="min-h-11 rounded-lg border border-[#d9dee8] bg-white px-3 text-sm font-normal text-[#243451] outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15">
-												{durations.map(hours => <option key={hours} value={hours}>{hours} {hours === 1 ? "hora" : "horas"}</option>)}
-											</select>
+										<label className="grid gap-1.5 text-sm font-semibold" htmlFor="reservation-entry">Horário de entrada
+											<input id="reservation-entry" type="time" required value={reservationTime} onChange={event => {setReservationTime(event.target.value); setSelectedSpotId(""); setFormError(""); setIsReviewing(false);}} disabled={isLoading || Boolean(parkingError)} className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal" />
 										</label>
-										<label className="grid gap-1.5 text-sm font-semibold" htmlFor="spot-type">Tipo de vaga
-											<select id="spot-type" value={spotType} onChange={event => { setSpotType(event.target.value); setSelectedSpotId(""); setIsReviewing(false); }} disabled={isLoading || Boolean(parkingError) || !parking} className="min-h-11 rounded-lg border border-[#d9dee8] bg-white px-3 text-sm font-normal text-[#243451] outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15">
-												{Object.keys(parking?.hourlyRates || {}).map(type => <option key={type}>{type}</option>)}
-											</select>
+										<label className="grid gap-1.5 text-sm font-semibold" htmlFor="reservation-exit">Horário de saída
+											<input id="reservation-exit" type="time" required value={endTime} onChange={event => {setEndTime(event.target.value); setSelectedSpotId(""); setFormError(""); setIsReviewing(false);}} disabled={isLoading || Boolean(parkingError)} className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal" />
 										</label>
+										<label className="flex items-center gap-2 text-sm font-medium sm:col-span-2">
+											<input type="checkbox" checked={differentExitDate} onChange={event => {
+												const checked = event.target.checked;
+												setDifferentExitDate(checked);
+												if (checked && exitDate <= reservationDate) setExitDate(nextLocalDateValue(reservationDate));
+												setSelectedSpotId("");
+												setFormError("");
+												setIsReviewing(false);
+											}} disabled={isLoading || Boolean(parkingError) || !mayCrossMidnight} className="h-4 w-4 accent-[#7c3aed]" />
+											Retirar o carro em um dia diferente do dia de entrada
+										</label>
+										{differentExitDate && <div className="grid gap-1.5 text-sm font-semibold sm:col-span-2">
+											<label htmlFor="reservation-exit-date">Data de saída</label>
+											<ReservationDatePicker id="reservation-exit-date" value={exitDate} minDate={nextLocalDateValue(reservationDate || minimumDate)} disabled={isLoading || Boolean(parkingError)} onChange={date => {
+												setExitDate(date);
+												setSelectedSpotId("");
+												setFormError("");
+												setIsReviewing(false);
+											}} />
+										</div>}
+										<p className="sm:col-span-2 text-xs leading-5 text-[#758098]">
+											{duration ? `Período: ${duration.toFixed(2).replace(".", ",")} horas. Total estimado calculado pelas horas entre a entrada e a saída.` : "Escolha os dois horários; o total é calculado pela diferença entre eles."}
+											{parking?.allowsOvernight ? " Este estabelecimento permite permanência de um dia para o outro." : " Este estabelecimento não permite permanência de um dia para o outro."}
+										</p>
+										{reservationTimeError && <p role="alert" className="sm:col-span-2 text-xs font-semibold text-red-700">{reservationTimeError}</p>}
+										<fieldset className="sm:col-span-2">
+											<legend className="text-sm font-semibold">Características da vaga (tags)</legend>
+											<p className="mt-1 text-xs text-[#758098]">Selecione tags para filtrar. Coberta e Descoberta são mutuamente exclusivas; Especial pode ser combinada com qualquer uma.</p>
+											<div className="mt-2 flex flex-wrap gap-2">{SPOT_FEATURES.map(feature => <label key={feature} className={`cursor-pointer rounded-full border px-3 py-2 text-xs font-semibold ${selectedFeatures.includes(feature) ? "border-[#7c3aed] bg-[#faf8ff] text-[#6236bc]" : "border-[#d9dee8] text-[#526079]"}`}>
+												<input type="checkbox" className="sr-only" checked={selectedFeatures.includes(feature)} onChange={event => {setSelectedFeatures(current => toggleSpotFeature(current, feature, event.target.checked)); setSelectedSpotId(""); setIsReviewing(false);}} />{feature}
+											</label>)}</div>
+										</fieldset>
 										<SpotPicker
 											spots={typedSpots}
 											reservationTime={reservationTime}
@@ -317,21 +451,53 @@ import "../../paginaReserva.css";
 									</div>
 								</fieldset>
 
+								<fieldset className="border-t border-[#edf0f5] pt-5">
+									<legend className="font-display text-lg font-semibold">Veículo da reserva</legend>
+									{driverSession ? driverAccount ? <>
+										<div className="mt-3 flex flex-wrap items-end gap-3">
+											<label className="grid min-w-[220px] flex-1 gap-1.5 text-sm font-semibold" htmlFor="reservation-vehicle">Selecione um veículo cadastrado
+												<select id="reservation-vehicle" required value={selectedVehicleId} onChange={event => setSelectedVehicleId(event.target.value)} className="min-h-11 rounded-lg border border-[#d9dee8] bg-white px-3 text-sm font-normal">
+													<option value="">Selecione</option>{(driverAccount.vehicles || []).map(vehicle => <option key={vehicle.id} value={vehicle.id}>{vehicle.plate} · {vehicle.model} · {vehicle.color}</option>)}
+												</select>
+											</label>
+											<button type="button" onClick={() => setVehicleFormOpen(open => !open)} className="min-h-11 rounded-lg border border-[#6250b5] px-4 text-sm font-semibold text-[#51419c]">{vehicleFormOpen ? "Cancelar" : "Cadastrar novo veículo"}</button>
+										</div>
+										{vehicleFormOpen && <div className="mt-3 grid gap-3 rounded-lg bg-[#f8fafc] p-3 sm:grid-cols-4">
+											<label className="grid gap-1 text-xs font-semibold">Placa<input required maxLength={8} value={vehicleDraft.plate} onChange={event => setVehicleDraft({...vehicleDraft, plate:event.target.value.toUpperCase()})} className="min-h-10 rounded-lg border border-[#d9dee8] px-2 text-sm font-normal" /></label>
+											<label className="grid gap-1 text-xs font-semibold">Modelo<input required value={vehicleDraft.model} onChange={event => setVehicleDraft({...vehicleDraft, model:event.target.value})} className="min-h-10 rounded-lg border border-[#d9dee8] px-2 text-sm font-normal" /></label>
+											<label className="grid gap-1 text-xs font-semibold">Cor<input required value={vehicleDraft.color} onChange={event => setVehicleDraft({...vehicleDraft, color:event.target.value})} className="min-h-10 rounded-lg border border-[#d9dee8] px-2 text-sm font-normal" /></label>
+											<button type="button" onClick={() => addReservationVehicle()} className="mt-auto min-h-10 rounded-lg bg-[#6250b5] px-3 text-xs font-semibold text-white">Salvar veículo</button>
+										</div>}
+									</> : <p role="status" className="mt-2 text-sm text-[#68738a]">Carregando veículos da sua conta...</p>
+									: <p className="mt-2 text-sm text-[#68738a]">Para reservar, <a href="loginUsuario.html" className="font-semibold text-[#6236bc] underline">entre na sua conta de motorista</a> ou <a href="cadastroUsuario.html" className="font-semibold text-[#6236bc] underline">cadastre-se</a> e adicione seu veículo.</p>}
+								</fieldset>
+
 								<DriverDetailsFields
 									register={register}
 									errors={errors}
 								/>
 
-								<PaymentMethodPicker paymentMethod={paymentMethod} onChange={setPaymentMethod} />
+								<PaymentMethodPicker
+									paymentMethod={paymentMethod}
+									onChange={method => {setPaymentMethod(method); setSelectedCardId("");}}
+									methods={paymentMethods}
+									selectedCardId={selectedCardId}
+									onSelectCard={id => {setPaymentMethod("Card"); setSelectedCardId(id);}}
+								/>
 
 								{isReviewing && <ReservationReview
 									reservationDate={reservationDate}
 									reservationTime={reservationTime}
+									endTime={endTime}
+									endDate={endDate}
 									duration={duration}
-									spotType={spotType}
+									spotType={reservationSpotType}
 									spotLabel={spots.find(spot => spot.id === selectedSpotId)?.label}
-									paymentMethod={paymentMethod}
+									hourlyRate={hourlyRate}
+									rateTierLabel={rateTierLabel}
+									paymentMethod={savedCard ? `${savedCard.brand} •••• ${savedCard.last4}` : paymentMethod === "NewCard" ? "Novo cartão" : paymentMethod}
 									price={price}
+									vehicle={selectedVehicle}
 									onEdit={() => setIsReviewing(false)}
 								/>}
 								<button type="submit" disabled={isLoading || Boolean(parkingError) || isSubmitting} className="mt-1 min-h-12 rounded-lg bg-[#7c3aed] px-5 py-3 font-semibold text-white transition hover:bg-[#6d28d9] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2">{isSubmitting ? "Verificando disponibilidade..." : isReviewing ? "Ir para pagamento" : "Revisar solicitação"}</button>
@@ -340,13 +506,19 @@ import "../../paginaReserva.css";
 						</section>
 
 						<ReservationSummary
-							spotType={spotType}
+							spotType={reservationSpotType}
 							spotLabel={spots.find(spot => spot.id === selectedSpotId)?.label}
 							duration={duration}
 							hourlyRate={hourlyRate}
-							paymentMethod={paymentMethod}
+							rateTierLabel={rateTierLabel}
+							paymentMethod={savedCard ? `${savedCard.brand} •••• ${savedCard.last4}` : paymentMethod === "NewCard" ? "Novo cartão" : paymentMethod}
 							price={price}
 							placeId={placeId}
+							reservationDate={reservationDate}
+							reservationTime={reservationTime}
+							endTime={endTime}
+							endDate={endDate}
+							vehicle={selectedVehicle}
 						/>
 					</div>
 				</main>

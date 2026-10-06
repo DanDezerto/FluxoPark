@@ -11,7 +11,12 @@ export default defineConfig({
 			"/reservations": "http://localhost:3000",
 			"/reviews": "http://localhost:3000",
 			"/users": "http://localhost:3000",
-			"/parkingAccounts": "http://localhost:3000"
+			"/parkingAccounts": "http://localhost:3000",
+			"/paymentMethods": "http://localhost:3000",
+			"/reports": "http://localhost:3000",
+			"/partnerRequests": "http://localhost:3000",
+			"/administrators": "http://localhost:3000",
+			"/admin": "http://localhost:3000"
 		}
 	},
 	build: {
@@ -26,7 +31,12 @@ export default defineConfig({
 				loginEstacionamento: resolve(__dirname, "FluxoPark", "loginEstacionamento.html"),
 				cadastroEstacionamento: resolve(__dirname, "FluxoPark", "cadastroEstacionamento.html"),
 				paginaInicialMotorista: resolve(__dirname, "FluxoPark", "paginaInicialMotorista.html"),
-				paginaReserva: resolve(__dirname, "FluxoPark", "paginaReserva.html")
+				paginaReserva: resolve(__dirname, "FluxoPark", "paginaReserva.html"),
+				cadastroAdministrador: resolve(__dirname, "FluxoPark", "cadastroAdministrador.html"),
+				loginAdministrador: resolve(__dirname, "FluxoPark", "loginAdministrador.html"),
+				tratamentoRequisicoes: resolve(__dirname, "FluxoPark", "tratamentoRequisicoes.html"),
+				minhasDenuncias: resolve(__dirname, "FluxoPark", "minhasDenuncias.html"),
+				metodosPagamento: resolve(__dirname, "FluxoPark", "metodosPagamento.html")
 			}
 		}
 	}

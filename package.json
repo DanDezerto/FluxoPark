@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "vite --config vite.config.js",
     "build": "vite build --config vite.config.js",
-    "api": "json-server --watch db.json --port 3000",
-    "start": "npm run build && json-server --watch db.json --static ./dist --port 3000"
+    "api": "node server.js",
+    "start": "npm run build && node server.js --static"
   },
   "devDependencies": {
     "json-server": "0.17.4",
