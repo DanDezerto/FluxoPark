@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, PaymentStep, ReservationConfirmation, ReservationDatePicker, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker } from "../components/reservation/ReservationComponents.jsx";
+import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, PaymentStep, ReservationConfirmation, ReservationDatePicker, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker, Time24Input } from "../components/reservation/ReservationComponents.jsx";
 import { AppProviders } from "../providers/AppProviders.jsx";
 import { createReservation, readCollection } from "../lib/api.js";
 import {createDemoId, demoRequest, readDemoSession} from "../lib/demoAccounts.js";
@@ -403,10 +403,10 @@ import "../../paginaReserva.css";
 											<ReservationDatePicker id="reservation-date" value={reservationDate} minDate={minimumDate} error={errors.reservationDate?.message} onChange={updateReservationDate} disabled={isLoading || Boolean(parkingError)} />
 										</div>
 										<label className="grid gap-1.5 text-sm font-semibold" htmlFor="reservation-entry">Horário de entrada
-											<input id="reservation-entry" type="time" required value={reservationTime} onChange={event => {setReservationTime(event.target.value); setSelectedSpotId(""); setFormError(""); setIsReviewing(false);}} disabled={isLoading || Boolean(parkingError)} className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal" />
+											<Time24Input id="reservation-entry" value={reservationTime} onChange={time => {setReservationTime(time); setSelectedSpotId(""); setFormError(""); setIsReviewing(false);}} disabled={isLoading || Boolean(parkingError)} />
 										</label>
 										<label className="grid gap-1.5 text-sm font-semibold" htmlFor="reservation-exit">Horário de saída
-											<input id="reservation-exit" type="time" required value={endTime} onChange={event => {setEndTime(event.target.value); setSelectedSpotId(""); setFormError(""); setIsReviewing(false);}} disabled={isLoading || Boolean(parkingError)} className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal" />
+											<Time24Input id="reservation-exit" value={endTime} onChange={time => {setEndTime(time); setSelectedSpotId(""); setFormError(""); setIsReviewing(false);}} disabled={isLoading || Boolean(parkingError)} />
 										</label>
 										<label className="flex items-center gap-2 text-sm font-medium sm:col-span-2">
 											<input type="checkbox" checked={differentExitDate} onChange={event => {

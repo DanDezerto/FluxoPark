@@ -108,6 +108,60 @@ export function ReservationDatePicker({id = "reservation-date", value, minDate, 
 	</div>;
 }
 
+export function Time24Input({id, value, onChange, disabled}) {
+	const [open, setOpen] = React.useState(false);
+	const [selectedHour, setSelectedHour] = React.useState(() => value.split(":")[0] || "");
+	const [selectedMinute, setSelectedMinute] = React.useState(() => value.split(":")[1] || "");
+	const hourList = React.useRef(null);
+	const minuteList = React.useRef(null);
+
+	React.useEffect(() => {
+		setSelectedHour(value.split(":")[0] || "");
+		setSelectedMinute(value.split(":")[1] || "");
+	}, [value]);
+
+	React.useEffect(() => {
+		if (!open) return;
+		[[hourList, selectedHour], [minuteList, selectedMinute]].forEach(([listRef, selected]) => {
+			if (!selected || !listRef.current) return;
+			const selectedOption = listRef.current.querySelector(`[data-value="${selected}"]`);
+			if (selectedOption) listRef.current.scrollTop = selectedOption.offsetTop - listRef.current.offsetTop - (listRef.current.clientHeight - selectedOption.clientHeight) / 2;
+		});
+	}, [open, selectedHour, selectedMinute]);
+
+	function chooseTime(hour, minute) {
+		setSelectedHour(hour);
+		setSelectedMinute(minute);
+		if (hour && minute) onChange(`${hour}:${minute}`);
+	}
+
+	function renderOptions(listRef, label, count, selected, onSelect) {
+		return <div>
+			<p className="mb-2 text-center text-xs font-semibold text-[#68738a]">{label}</p>
+			<div ref={listRef} role="listbox" aria-label={label} className="h-52 snap-y snap-mandatory overflow-y-auto overscroll-contain rounded-lg border border-[#e5e7eb] bg-white p-1">
+				{Array.from({length:count}, (_, index) => {
+					const option = String(index).padStart(2, "0");
+					const isSelected = option === selected;
+					return <button key={option} type="button" role="option" aria-selected={isSelected} data-value={option} onClick={() => onSelect(option)} className={`mb-1 min-h-9 w-full snap-center rounded-md text-sm font-semibold tabular-nums transition last:mb-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#7c3aed] ${isSelected ? "bg-[#7c3aed] text-white" : "text-[#34415c] hover:bg-[#f3f0fa]"}`}>{option}</button>;
+				})}
+			</div>
+		</div>;
+	}
+
+	return <div className="relative">
+		<button id={id} type="button" aria-haspopup="dialog" aria-expanded={open} aria-controls={`${id}-picker`} disabled={disabled} onClick={() => setOpen(isOpen => !isOpen)} className="flex min-h-11 w-full items-center justify-between rounded-lg border border-[#d9dee8] bg-white px-3 text-left text-sm font-normal tabular-nums text-[#243451] focus:border-[#7c3aed] focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/15 disabled:cursor-not-allowed disabled:bg-[#f8fafc]">
+			<span>{value || "--:--"}</span><span aria-hidden="true" className="text-[#68738a]">◷</span>
+		</button>
+		{open && <div id={`${id}-picker`} role="dialog" aria-label="Selecionar horário no formato de 24 horas" className="absolute left-0 top-full z-30 mt-2 w-64 rounded-xl border border-[#e5e7eb] bg-white p-3 shadow-xl">
+			<div className="grid grid-cols-2 gap-3">
+				{renderOptions(hourList, "Hora (00–23)", 24, selectedHour, hour => chooseTime(hour, selectedMinute))}
+				{renderOptions(minuteList, "Minuto (00–59)", 60, selectedMinute, minute => chooseTime(selectedHour, minute))}
+			</div>
+			<button type="button" onClick={() => setOpen(false)} className="mt-3 min-h-10 w-full rounded-lg bg-[#7c3aed] px-3 text-sm font-semibold text-white hover:bg-[#6d28d9] focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2">Concluir</button>
+		</div>}
+	</div>;
+}
+
 export function ReservationHeader({onBack}) {
 			return <header className="bg-[#1d2b52] text-white">
 				<div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-5 sm:px-6">
@@ -331,7 +385,7 @@ export function ReservationHeader({onBack}) {
 						<dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
 							<div><dt className="text-[#68738a]">Estacionamento</dt><dd className="mt-1 font-semibold">{reservation.parkingName}</dd></div>
 							<div><dt className="text-[#68738a]">Endereço</dt><dd className="mt-1 font-semibold">{parkingAddress}</dd></div>
-							<div><dt className="text-[#68738a]">Período</dt><dd className="mt-1 font-semibold">{new Intl.DateTimeFormat("pt-BR").format(new Date(reservation.startAt))} · {new Intl.DateTimeFormat("pt-BR", {hour:"2-digit", minute:"2-digit"}).format(new Date(reservation.startAt))}–{new Intl.DateTimeFormat("pt-BR", {hour:"2-digit", minute:"2-digit"}).format(new Date(reservation.endAt))}{new Date(reservation.startAt).toDateString() !== new Date(reservation.endAt).toDateString() ? ` (${new Intl.DateTimeFormat("pt-BR").format(new Date(reservation.endAt))})` : ""}</dd></div>
+							<div><dt className="text-[#68738a]">Período</dt><dd className="mt-1 font-semibold">{new Intl.DateTimeFormat("pt-BR").format(new Date(reservation.startAt))} · {new Intl.DateTimeFormat("pt-BR", {hour:"2-digit", minute:"2-digit", hourCycle:"h23"}).format(new Date(reservation.startAt))}–{new Intl.DateTimeFormat("pt-BR", {hour:"2-digit", minute:"2-digit", hourCycle:"h23"}).format(new Date(reservation.endAt))}{new Date(reservation.startAt).toDateString() !== new Date(reservation.endAt).toDateString() ? ` (${new Intl.DateTimeFormat("pt-BR").format(new Date(reservation.endAt))})` : ""}</dd></div>
 							<div><dt className="text-[#68738a]">Veículo</dt><dd className="mt-1 font-semibold">{reservation.vehiclePlate} · {reservation.vehicleModel}</dd></div>
 							<div><dt className="text-[#68738a]">Duração e vaga</dt><dd className="mt-1 font-semibold">{Number(reservation.durationHours).toFixed(2)} h · {reservation.spotType} {reservation.spotLabel}</dd></div>
 							<div><dt className="text-[#68738a]">Pagamento selecionado</dt><dd className="mt-1 font-semibold">{reservation.paymentMethod} (simulação)</dd></div>
