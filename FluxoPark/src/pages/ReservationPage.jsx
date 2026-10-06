@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, PaymentStep, ReservationConfirmation, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker, TimeSlotPicker } from "../components/reservation/ReservationComponents.jsx";
+import { BookingApiStatus, DriverDetailsFields, ParkingIdentity, PaymentMethodPicker, PaymentStep, ReservationConfirmation, ReservationDatePicker, ReservationHeader, ReservationReview, ReservationSummary, SpotPicker, TimeSlotPicker } from "../components/reservation/ReservationComponents.jsx";
 import { AppProviders } from "../providers/AppProviders.jsx";
 import { createReservation, readCollection } from "../lib/api.js";
 import { reservationSchema } from "../lib/reservationSchema.js";
@@ -117,6 +117,7 @@ import "../../paginaReserva.css";
 			}
 			const typedSpots = spots.filter(spot => spot.type === spotType);
 			const availableSlots = timeSlots.filter(time => {
+				if (!reservationDate) return false;
 				const [hours, minutes] = time.split(":").map(Number);
 				if (hours * 60 + minutes + duration * 60 > 23 * 60) return false;
 				if (reservationDate === minimumDate) {
@@ -128,7 +129,7 @@ import "../../paginaReserva.css";
 			});
 
 			function updateReservationDate(date) {
-				setValue("reservationDate", date, {shouldValidate:true});
+				setValue("reservationDate", date, {shouldDirty:true, shouldValidate:true});
 				setReservationTime("");
 				setSelectedSpotId("");
 				setFormError("");
@@ -283,10 +284,10 @@ import "../../paginaReserva.css";
 								<fieldset>
 									<legend className="font-display text-lg font-semibold">Quando você precisa da vaga?</legend>
 									<div className="mt-3 grid gap-4 sm:grid-cols-2">
-										<label className="grid gap-1.5 text-sm font-semibold sm:col-span-2" htmlFor="reservation-date">Data
-											<input id="reservation-date" type="date" min={minimumDate} {...register("reservationDate", {onChange:event => updateReservationDate(event.target.value)})} aria-invalid={Boolean(errors.reservationDate)} disabled={isLoading || Boolean(parkingError)} className="min-h-11 rounded-lg border border-[#d9dee8] bg-white px-3 text-sm font-normal text-[#243451] outline-none focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/15" />
-											{errors.reservationDate && <span role="alert" className="text-xs font-medium text-red-700">{errors.reservationDate.message}</span>}
-										</label>
+										<div className="grid gap-1.5 text-sm font-semibold sm:col-span-2">
+											<label htmlFor="reservation-date">Data</label>
+											<ReservationDatePicker value={reservationDate} minDate={minimumDate} error={errors.reservationDate?.message} onChange={updateReservationDate} disabled={isLoading || Boolean(parkingError)} />
+										</div>
 										<TimeSlotPicker
 											availableSlots={availableSlots}
 											reservationTime={reservationTime}

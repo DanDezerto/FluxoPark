@@ -1,6 +1,101 @@
 import React from "react";
 import QRCode from "qrcode";
 
+const weekdayLabels = [
+	{short:"Seg", full:"Segunda-feira"},
+	{short:"Ter", full:"Terça-feira"},
+	{short:"Qua", full:"Quarta-feira"},
+	{short:"Qui", full:"Quinta-feira"},
+	{short:"Sex", full:"Sexta-feira"},
+	{short:"Sáb", full:"Sábado"},
+	{short:"Dom", full:"Domingo"}
+];
+
+function parseBrazilianDate(value) {
+	const match = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(value.trim());
+	if (!match) return "";
+	const [, day, month, year] = match;
+	const parsed = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+	if (parsed.getUTCFullYear() !== Number(year) || parsed.getUTCMonth() !== Number(month) - 1 || parsed.getUTCDate() !== Number(day)) return "";
+	return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+function formatBrazilianDate(value) {
+	const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+	return match ? `${match[3]}/${match[2]}/${match[1]}` : "";
+}
+
+function dateParts(value) {
+	const [year, month, day] = value.split("-").map(Number);
+	return {year, month, day};
+}
+
+export function ReservationDatePicker({value, minDate, disabled, error, onChange}) {
+	const [dateText, setDateText] = React.useState(() => formatBrazilianDate(value));
+	const [calendarOpen, setCalendarOpen] = React.useState(false);
+	const initialDate = value || minDate;
+	const [visibleMonth, setVisibleMonth] = React.useState(() => {
+		const {year, month} = dateParts(initialDate);
+		return new Date(year, month - 1, 1);
+	});
+	const parsedInput = parseBrazilianDate(dateText);
+	const dateError = dateText && (!parsedInput || parsedInput < minDate)
+		? parsedInput ? "A data não pode ser anterior a hoje." : "Informe uma data válida no formato DD/MM/AAAA."
+		: "";
+	const firstWeekday = (new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1).getDay() + 6) % 7;
+	const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate();
+	const minimumMonth = dateParts(minDate);
+	const previousMonthDisabled = visibleMonth.getFullYear() < minimumMonth.year ||
+		(visibleMonth.getFullYear() === minimumMonth.year && visibleMonth.getMonth() + 1 <= minimumMonth.month);
+	const monthLabel = new Intl.DateTimeFormat("pt-BR", {month:"long", year:"numeric"}).format(visibleMonth);
+
+	function selectDate(date) {
+		if (date < minDate) return;
+		setDateText(formatBrazilianDate(date));
+		onChange(date);
+		setCalendarOpen(false);
+	}
+
+	return <div className="relative">
+		<div className="flex min-h-11 overflow-hidden rounded-lg border border-[#d9dee8] bg-white focus-within:border-[#7c3aed] focus-within:ring-2 focus-within:ring-[#7c3aed]/15">
+			<input id="reservation-date" type="text" inputMode="numeric" autoComplete="off" placeholder="DD/MM/AAAA" value={dateText} onChange={event => {
+				const nextText = event.target.value;
+				const nextDate = parseBrazilianDate(nextText);
+				setDateText(nextText);
+				if (nextDate && nextDate >= minDate) {
+					const {year, month} = dateParts(nextDate);
+					setVisibleMonth(new Date(year, month - 1, 1));
+					onChange(nextDate);
+				} else {
+					onChange("");
+				}
+			}} aria-invalid={Boolean(dateError || error)} aria-describedby={dateError || error ? "reservation-date-format reservation-date-error" : "reservation-date-format"} disabled={disabled} className="min-w-0 flex-1 bg-transparent px-3 text-sm font-normal text-[#243451] outline-none placeholder:text-[#9aa3b4] disabled:cursor-not-allowed" />
+			<button type="button" aria-label="Abrir calendário" aria-expanded={calendarOpen} aria-controls="reservation-calendar" onClick={() => setCalendarOpen(open => !open)} disabled={disabled} className="px-3 text-lg text-[#68738a] hover:bg-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#7c3aed] disabled:cursor-not-allowed" title="Abrir calendário">▦</button>
+		</div>
+		<p id="reservation-date-format" className="mt-1 text-xs font-normal text-[#758098]">Formato: dia/mês/ano</p>
+		{(dateError || error) && <p id="reservation-date-error" role="alert" className="mt-1 text-xs font-medium text-red-700">{dateError || error}</p>}
+		{calendarOpen && <div id="reservation-calendar" className="absolute left-0 top-full z-20 mt-2 w-[min(20rem,calc(100vw-3rem))] rounded-xl border border-[#e5e7eb] bg-white p-4 shadow-xl">
+			<div className="mb-3 flex items-center justify-between gap-3">
+				<button type="button" aria-label="Mês anterior" disabled={previousMonthDisabled} onClick={() => setVisibleMonth(month => new Date(month.getFullYear(), month.getMonth() - 1, 1))} className="grid h-9 w-9 place-items-center rounded-lg text-lg text-[#34415c] hover:bg-[#f3f0fa] disabled:cursor-not-allowed disabled:opacity-40">‹</button>
+				<p className="font-semibold capitalize text-[#243451]" aria-live="polite">{monthLabel}</p>
+				<button type="button" aria-label="Próximo mês" onClick={() => setVisibleMonth(month => new Date(month.getFullYear(), month.getMonth() + 1, 1))} className="grid h-9 w-9 place-items-center rounded-lg text-lg text-[#34415c] hover:bg-[#f3f0fa]">›</button>
+			</div>
+			<div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold text-[#758098]">
+				{weekdayLabels.map(day => <span key={day.short} className="py-1" aria-label={day.full}>{day.short}</span>)}
+			</div>
+			<div className="mt-1 grid grid-cols-7 gap-1">
+				{Array.from({length:firstWeekday}, (_, index) => <span key={`empty-${index}`} aria-hidden="true" />)}
+				{Array.from({length:daysInMonth}, (_, index) => {
+					const day = index + 1;
+					const date = `${visibleMonth.getFullYear()}-${String(visibleMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+					const unavailable = date < minDate;
+					return <button key={date} type="button" disabled={unavailable} aria-label={`${day} de ${monthLabel}`} aria-pressed={date === value} onClick={() => selectDate(date)} className={`grid h-9 place-items-center rounded-lg text-sm ${date === value ? "bg-[#7c3aed] font-semibold text-white" : "text-[#34415c] hover:bg-[#f3f0fa]"} disabled:cursor-not-allowed disabled:text-[#c5cad3] disabled:hover:bg-transparent`}>{day}</button>;
+				})}
+			</div>
+		</div>}
+	</div>;
+}
+
 export function ReservationHeader({onBack}) {
 			return <header className="bg-[#1d2b52] text-white">
 				<div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-5 sm:px-6">
