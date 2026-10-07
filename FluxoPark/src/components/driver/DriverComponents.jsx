@@ -112,20 +112,27 @@ export function DriverHeader({query, onQueryChange, onSelectDestination, mapRead
 							{suggestionError && <p className="mt-1 text-xs text-white/80" role="status">{suggestionError}</p>}
 						</div>
 					</form>
-					<button type="button" onClick={onToggleMenu} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={menuOpen} className="grid shrink-0 gap-[6px] rounded-lg p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/70">
+					<button type="button" onClick={onToggleMenu} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"} aria-controls="driver-sidebar-menu" aria-expanded={menuOpen} className="grid shrink-0 gap-[6px] rounded-lg p-2 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/70">
 						<span className="h-[5px] w-9 rounded-full bg-white sm:w-11"></span><span className="h-[5px] w-9 rounded-full bg-white sm:w-11"></span><span className="h-[5px] w-9 rounded-full bg-white sm:w-11"></span>
 					</button>
 				</div>
-				{menuOpen && <nav aria-label="Acesso às contas" className="border-t border-white/15 bg-[#172444] px-5 py-3 sm:px-8 lg:px-10">
-					<div className="mx-auto flex max-w-[1500px] flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
-						<a href="loginUsuario.html" className="text-white/90 transition hover:text-white">Entrar como motorista</a>
-						<a href="loginAdministrador.html" className="text-white/90 transition hover:text-white">Acesso administrativo</a>
-						{driverSession && <a href="contaUsuario.html" className="text-white/90 transition hover:text-white">Minha conta e reservas</a>}
-						{driverSession && <a href="metodosPagamento.html" className="text-white/90 transition hover:text-white">Meus métodos de pagamento</a>}
-						{driverSession && <a href="minhasDenuncias.html" className="text-white/90 transition hover:text-white">Minhas denúncias</a>}
-						<a href="loginEstacionamento.html" className="text-white/90 transition hover:text-white">Portal do estacionamento</a>
-					</div>
-				</nav>}
+				{menuOpen && <>
+					<button type="button" onClick={onToggleMenu} aria-label="Fechar menu" className="fixed inset-0 z-[60] cursor-default bg-[#101a33]/60" />
+					<aside id="driver-sidebar-menu" className="fixed inset-y-0 left-0 z-[61] flex w-[min(20rem,88vw)] flex-col border-r border-white/10 bg-[#172444] px-5 py-5 text-white shadow-2xl">
+						<div className="flex items-center justify-between gap-3 border-b border-white/15 pb-5">
+							<a href="paginaInicialMotorista.html" className="font-display text-xl font-bold text-white no-underline">FluxoPark</a>
+							<button type="button" onClick={onToggleMenu} aria-label="Fechar menu" className="grid h-10 w-10 place-items-center rounded-lg text-2xl text-white/80 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70">×</button>
+						</div>
+						<nav aria-label="Menu principal" className="mt-6 grid gap-1 text-sm font-semibold">
+							<a href="loginUsuario.html" className="rounded-lg px-3 py-3 text-white/90 transition hover:bg-white/10 hover:text-white">Entrar como motorista</a>
+							<a href="loginAdministrador.html" className="rounded-lg px-3 py-3 text-white/90 transition hover:bg-white/10 hover:text-white">Acesso administrativo</a>
+							{driverSession && <a href="contaUsuario.html" className="rounded-lg px-3 py-3 text-white/90 transition hover:bg-white/10 hover:text-white">Minha conta e reservas</a>}
+							{driverSession && <a href="metodosPagamento.html" className="rounded-lg px-3 py-3 text-white/90 transition hover:bg-white/10 hover:text-white">Meus métodos de pagamento</a>}
+							{driverSession && <a href="minhasDenuncias.html" className="rounded-lg px-3 py-3 text-white/90 transition hover:bg-white/10 hover:text-white">Minhas denúncias</a>}
+							<a href="loginEstacionamento.html" className="rounded-lg px-3 py-3 text-white/90 transition hover:bg-white/10 hover:text-white">Portal do estacionamento</a>
+						</nav>
+					</aside>
+				</>}
 			</header>;
 		}
 

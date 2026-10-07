@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import {demoRequest, hashDemoPassword, readDemoSession, endDemoSession} from "../lib/demoAccounts.js";
 import {getSpotFeatures, SPOT_FEATURES, toggleSpotFeature} from "../lib/spotFeatures.js";
-import {getHourlyRate, normalizeHourlyRates, RATE_TIER_KEYS, RATE_TIER_LABELS} from "../lib/parkingPricing.js";
+import {DEFAULT_RATE_TIER_LIMITS, getHourlyRate, getRateTierLabels, normalizeHourlyRates, normalizeRateTierLimits, RATE_TIER_KEYS} from "../lib/parkingPricing.js";
 import "../../paginaReserva.css";
 
 const spotTypes = SPOT_FEATURES;
@@ -16,6 +16,7 @@ const emptyParking = {
 	partner: true,
 	rating: "",
 	hourlyRates: emptyHourlyRates(),
+	rateTierLimits: {...DEFAULT_RATE_TIER_LIMITS},
 	toleranceMinutes: "15",
 	openingHours: defaultOpeningHours,
 	allowsOvernight: false
@@ -23,6 +24,15 @@ const emptyParking = {
 
 function makeId(prefix) {
 	return `${prefix}-${window.crypto?.randomUUID?.() || Math.random().toString(36).slice(2, 12)}`;
+}
+
+function formatCnpj(value) {
+	const digits = value.replace(/\D/g, "").slice(0, 14);
+	if (digits.length > 12) return `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12)}`;
+	if (digits.length > 8) return `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8)}`;
+	if (digits.length > 5) return `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5)}`;
+	if (digits.length > 2) return `${digits.slice(0,2)}.${digits.slice(2)}`;
+	return digits;
 }
 
 function featuresForSpot(spot) {
@@ -87,6 +97,7 @@ function ParkingAdminPage() {
 			...item,
 			googlePlaceId: item.googlePlaceId || "",
 			rating: item.rating ?? "",
+			rateTierLimits: normalizeRateTierLimits(item.rateTierLimits),
 			toleranceMinutes: item.toleranceMinutes ?? 15,
 			hourlyRates: Object.fromEntries(Object.entries(normalizeHourlyRates(item.hourlyRates)).map(([type, rates]) => [
 				type,
@@ -119,6 +130,10 @@ function ParkingAdminPage() {
 				[type]: {...current.hourlyRates[type], [tier]:value}
 			}
 		}));
+	}
+
+	function updateRateTierLimit(key, value) {
+		setParking(current => ({...current, rateTierLimits:{...current.rateTierLimits, [key]:value}}));
 	}
 
 	function updateSpot(index, key, value) {
@@ -215,6 +230,7 @@ function ParkingAdminPage() {
 				googlePlaceId: parking.googlePlaceId.trim() || null,
 				partner: Boolean(parking.partner),
 				rating: Number(parking.rating) || 0,
+				rateTierLimits: normalizeRateTierLimits(parking.rateTierLimits),
 				hourlyRates: Object.fromEntries(spotTypes.map(type => [type, Object.fromEntries(RATE_TIER_KEYS.map(key => [
 					key,
 					Number(parking.hourlyRates[type][key]) || 0
@@ -317,7 +333,7 @@ function ParkingAdminPage() {
 								<input id="partner-email" name="partnerEmail" type="email" autoComplete="email" required placeholder="responsavel@exemplo.com" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#6250b5] focus:ring-2 focus:ring-[#6250b5]/15" />
 							</label>
 							<label className="grid gap-1.5 text-sm font-semibold" htmlFor="partner-cnpj">CNPJ
-								<input id="partner-cnpj" name="partnerCnpj" type="text" inputMode="numeric" autoComplete="off" required minLength={14} maxLength={18} pattern="[0-9./-]{14,18}" placeholder="00.000.000/0000-00" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#6250b5] focus:ring-2 focus:ring-[#6250b5]/15" />
+								<input id="partner-cnpj" name="partnerCnpj" type="text" inputMode="numeric" autoComplete="off" required minLength={18} maxLength={18} pattern="[0-9]{2}\.[0-9]{3}\.[0-9]{3}/[0-9]{4}-[0-9]{2}" onChange={event => { event.currentTarget.value = formatCnpj(event.currentTarget.value); }} placeholder="00.000.000/0000-00" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#6250b5] focus:ring-2 focus:ring-[#6250b5]/15" />
 							</label>
 							<label className="grid gap-1.5 text-sm font-semibold" htmlFor="partner-password">Senha do portal
 								<input id="partner-password" name="partnerPassword" type="password" autoComplete="new-password" required minLength={8} placeholder="Mínimo de 8 caracteres" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#6250b5] focus:ring-2 focus:ring-[#6250b5]/15" />
@@ -360,12 +376,20 @@ function ParkingAdminPage() {
 						</fieldset>
 						<fieldset className="border-t border-[#edf0f5] pt-4">
 							<legend className="font-display font-semibold">Forma e valor de cobrança</legend>
-							<p className="mt-1 text-xs leading-5 text-[#68738a]">A tarifa por hora depende da duração total da reserva. Para cada tag usada, informe o valor de cada faixa; acima de 4 horas a faixa longa também se aplica após 12 horas.</p>
+							<p className="mt-1 text-xs leading-5 text-[#68738a]">Defina os limites de duração para este estacionamento. A tarifa da faixa selecionada é aplicada a cada hora reservada.</p>
+							<div className="mt-3 grid gap-3 sm:grid-cols-2">
+								<label className="grid gap-1.5 text-xs font-semibold" htmlFor="rate-tier-first-limit">Primeira faixa até (horas)
+									<input id="rate-tier-first-limit" type="number" min="1" max={Number(parking.rateTierLimits.second) - 1 || 3} step="1" required value={parking.rateTierLimits.first} onChange={event => updateRateTierLimit("first", event.target.value)} className="min-h-10 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#6250b5] focus:ring-2 focus:ring-[#6250b5]/15" />
+								</label>
+								<label className="grid gap-1.5 text-xs font-semibold" htmlFor="rate-tier-second-limit">Segunda faixa até (horas)
+									<input id="rate-tier-second-limit" type="number" min={Number(parking.rateTierLimits.first) + 1 || 2} max="24" step="1" required value={parking.rateTierLimits.second} onChange={event => updateRateTierLimit("second", event.target.value)} className="min-h-10 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#6250b5] focus:ring-2 focus:ring-[#6250b5]/15" />
+								</label>
+							</div>
 							<div className="mt-3 grid gap-3">
 								{spotTypes.map(type => <fieldset key={type} className="rounded-lg border border-[#e1e5ed] p-3">
 									<legend className="px-1 text-sm font-semibold">{type}</legend>
 									<div className="grid gap-3 sm:grid-cols-3">
-										{RATE_TIER_KEYS.map(tier => <label key={tier} className="grid gap-1.5 text-xs font-semibold" htmlFor={`rate-${type}-${tier}`}>{RATE_TIER_LABELS[tier]} · R$/h
+										{RATE_TIER_KEYS.map(tier => <label key={tier} className="grid gap-1.5 text-xs font-semibold" htmlFor={`rate-${type}-${tier}`}>{getRateTierLabels(parking.rateTierLimits)[tier]} · R$/h
 											<input id={`rate-${type}-${tier}`} type="number" min="0.01" step="0.01" required={spotRows.some(spot => featuresForSpot(spot).includes(type))} value={parking.hourlyRates[type][tier]} onChange={event => updateRate(type, tier, event.target.value)} className="min-h-10 rounded-lg border border-[#d9dee8] px-3 text-sm font-normal outline-none focus:border-[#6250b5] focus:ring-2 focus:ring-[#6250b5]/15" />
 										</label>)}
 									</div>

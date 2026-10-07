@@ -119,8 +119,8 @@ import "../../paginaReserva.css";
 				? selectedSpotFeatures
 				: selectedFeatures.length ? selectedFeatures : SPOT_FEATURES;
 			const reservationSpotType = selectedSpotFeatures.join(", ") || "Qualquer";
-			const {hourlyRate, total:price} = calculateReservationPrice(parking?.hourlyRates || {}, pricedFeatures, duration);
-			const rateTierLabel = duration ? getRateTierLabel(duration) : "";
+			const {hourlyRate, total:price} = calculateReservationPrice(parking?.hourlyRates || {}, pricedFeatures, duration, parking?.rateTierLimits);
+			const rateTierLabel = duration ? getRateTierLabel(duration, parking?.rateTierLimits) : "";
 			const hoursValid = Boolean(interval && parking && isWithinParkingHours(parking, interval));
 			const selectedVehicle = driverAccount?.vehicles?.find(item => item.id === selectedVehicleId) || null;
 			const reservationTimeError = reservationTime && endTime && !interval
