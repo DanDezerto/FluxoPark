@@ -2,4 +2,3 @@
 - Criar as rotas para conecta-las ao Banco de Dados
 - Ao criar os schemas, usar o Mongoose, e lembrar de fazer a "tradução" de id e _id entre os arquivos do BD e os scripts
 - Excluir as camadas de validação que e tornarem desnecessárias após a implementação do DB, visto que ele já faz algumas validações
-- 
