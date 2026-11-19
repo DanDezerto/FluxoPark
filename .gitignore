@@ -1,6 +1,8 @@
 .DS_Store
 node_modules/
 dist/
-FluxoPark/public/config.local.js
+backend/node_modules/
+frontend/node_modules/
+frontend/public/config.local.js
 .env
 .env.local

@@ -11,6 +11,7 @@ Antes de iniciar, verifique se o ambiente atende aos itens abaixo:
 - Git (opcional, mas recomendado para clonar o projeto)
 - Navegador moderno (Chrome, Edge, Firefox)
 - Acesso à internet para consultar API do Google Maps, quando habilitada
+- Dependências instaladas por `npm install`, incluindo Express no backend
 
 ## 2. Clonagem do projeto
 
@@ -42,16 +43,16 @@ Para ativar a busca e os mapas reais, é necessário configurar a chave do Googl
 1. Copie o arquivo de exemplo:
 
 ```bash
-cp FluxoPark/public/config.example.js FluxoPark/public/config.local.js
+cp frontend/public/config.example.js frontend/public/config.local.js
 ```
 
 No Windows PowerShell:
 
 ```powershell
-Copy-Item FluxoPark/public/config.example.js FluxoPark/public/config.local.js
+Copy-Item frontend/public/config.example.js frontend/public/config.local.js
 ```
 
-2. Edite o arquivo `FluxoPark/public/config.local.js` e informe:
+2. Edite o arquivo `frontend/public/config.local.js` e informe:
    - `googleMapsApiKey`
    - `googleMapsPartnerPlaceIds`
 
@@ -66,7 +67,7 @@ Copy-Item FluxoPark/public/config.example.js FluxoPark/public/config.local.js
 
 O projeto usa duas partes em paralelo:
 
-- API local com `json-server`
+- API local própria com Express
 - Aplicação frontend em React + Vite
 
 ### 5.1 Iniciar a API local
@@ -77,7 +78,7 @@ No terminal, na raiz do projeto:
 npm run api
 ```
 
-Isso inicia o servidor em `http://localhost:3000` com os dados de `db.json`.
+Isso inicia o servidor Express em `http://localhost:3000` com os dados temporários de `backend/db.json`. O backend oferece os mesmos formatos de coleção usados anteriormente pelo JSON Server.
 
 ### 5.2 Iniciar o frontend
 
@@ -113,9 +114,9 @@ Acesso sugerido:
 
 ## 7. Dados de demonstração
 
-O projeto inclui dados mockados em `mocks/` e em `db.json` para testes locais.
+O projeto inclui dados mockados em `backend/mocks/` e em `backend/db.json` para testes locais.
 
-Para usar um mock de exemplo, copie os objetos de cada coleção para o arquivo `db.json` e reinicie a API.
+Para usar um mock de exemplo, copie os objetos de cada coleção para o arquivo `backend/db.json` e reinicie a API.
 
 A documentação detalhada dos perfis e credenciais está em:
 
@@ -137,7 +138,7 @@ As credenciais de ambiente local estão descritas em `DADOS_MOCKS.md`. Exemplo:
 
 ## 9. Dicas de manutenção
 
-- O `json-server` salva alterações em `db.json`.
+- O backend Express salva temporariamente as alterações em `backend/db.json`.
 - Para limpar reservas de teste, pare a API e substitua o conteúdo de `reservations` por `[]`.
 - Não use dados reais de cartão, CPF, e-mail ou senha em ambiente local.
 - O projeto é uma demonstração de fluxo funcional e não possui autenticação e autorização de produção.
@@ -161,7 +162,7 @@ Confirme se o comando `npm run api` está em execução e se a porta `3000` est�
 
 Verifique:
 
-- `FluxoPark/public/config.local.js` existe
+- `frontend/public/config.local.js` existe
 - A chave do Google Maps está correta
 - As APIs necessárias estão habilitadas
 - O domínio está autorizado no Google Cloud

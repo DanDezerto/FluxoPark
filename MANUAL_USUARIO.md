@@ -148,7 +148,7 @@ O administrador acessa a área de tratamento de requisições e pode:
 
 ## 7. Uso de dados fictícios e mocks
 
-Para testes, o sistema inclui perfis de demonstração em `mocks/`.
+Para testes, o sistema inclui perfis de demonstração em `backend/mocks/`.
 
 Esses arquivos ajudam a simular:
 

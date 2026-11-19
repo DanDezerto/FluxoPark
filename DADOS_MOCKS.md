@@ -1,16 +1,16 @@
 # Dados de mocks para testes
 
-Os arquivos em `mocks/` fornecem perfis de demonstração para cada tipo de conta
+Os arquivos em `backend/mocks/` fornecem perfis de demonstração para cada tipo de conta
 do FluxoPark:
 
-- `mocks/motorista.json`: motorista e um veículo cadastrado.
-- `mocks/estabelecimento.json`: conta de parceiro, estacionamento e vagas.
-- `mocks/estabelecimento-valonguinho.json`: mock do Estacionamento Valonguinho,
+- `backend/mocks/motorista.json`: motorista e um veículo cadastrado.
+- `backend/mocks/estabelecimento.json`: conta de parceiro, estacionamento e vagas.
+- `backend/mocks/estabelecimento-valonguinho.json`: mock do Estacionamento Valonguinho,
   com Place ID e informações públicas disponíveis no Google Maps.
-- `mocks/administrador.json`: conta administrativa.
+- `backend/mocks/administrador.json`: conta administrativa.
 
 Os registros usam o formato das coleções JSON da API. Para usar um mock,
-adicione os objetos de cada coleção ao respectivo array em `db.json` e reinicie
+adicione os objetos de cada coleção ao respectivo array em `backend/db.json` e reinicie
 o servidor da API. Evite inserir o mesmo `id` ou e-mail mais de uma vez. Os
 dados são genéricos e exclusivos para desenvolvimento local; não os use em
 produção.

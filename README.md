@@ -16,12 +16,17 @@ parceiros. Os pagamentos disponíveis nesta versão são demonstrativos.
 - Fernando Lira Barbosa
 - Walter Veridiano dos Santos
 
+## Estrutura do projeto
+
+- `frontend/` — aplicação React/Vite
+- `backend/` — API local JSON Server, banco `db.json` e mocks
+
 ## Tecnologias utilizadas
 
 - **Interface:** HTML, CSS, JavaScript e React 18
 - **Desenvolvimento e build:** Vite
 - **Estilização:** Tailwind CSS e arquivos CSS próprios
-- **Dados e API local:** Node.js e json-server
+- **Dados e API local:** Node.js, Express e persistência temporária em JSON
 - **Consultas e formulários:** TanStack Query, React Hook Form e Zod
 - **Mapas e busca geográfica:** Google Maps Platform
 
