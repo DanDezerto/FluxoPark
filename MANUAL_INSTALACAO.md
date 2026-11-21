@@ -8,6 +8,8 @@ Antes de iniciar, verifique se o ambiente atende aos itens abaixo:
 
 - Node.js 18 ou superior
 - npm 9 ou superior
+- Docker Desktop com Docker Compose
+- WSL 2 habilitado no Windows para o motor Linux do Docker Desktop
 - Git (opcional, mas recomendado para clonar o projeto)
 - Navegador moderno (Chrome, Edge, Firefox)
 - Acesso à internet para consultar API do Google Maps, quando habilitada
@@ -65,12 +67,59 @@ Copy-Item frontend/public/config.example.js frontend/public/config.local.js
 
 ## 5. Execução do ambiente local
 
-O projeto usa duas partes em paralelo:
+O projeto usa o frontend Vite, a API Express e, durante a preparação do banco,
+um PostgreSQL local executado pelo Docker Compose.
 
-- API local própria com Express
-- Aplicação frontend em React + Vite
+### 5.1 Iniciar o PostgreSQL local
 
-### 5.1 Iniciar a API local
+Instale e inicie o Docker Desktop. Na raiz do projeto, execute:
+
+```powershell
+docker compose up -d
+docker compose ps
+```
+
+O serviço `postgres` deve aparecer como `running` ou `healthy`. O Compose cria
+um volume local persistente para que reiniciar ou parar o container não apague
+os dados. A configuração atual é exclusiva para desenvolvimento; não reutilize
+essas credenciais em produção.
+
+O PostgreSQL do container fica disponível em `localhost:5433`. Essa porta
+externa evita conflito com instalações locais do PostgreSQL que usam `5432`;
+dentro do container, o serviço continua usando a porta padrão `5432`.
+
+Para parar o banco sem apagar os dados:
+
+```powershell
+docker compose down
+```
+
+Não use `docker compose down -v` se quiser preservar os dados locais.
+
+### 5.2 Preparar o schema Prisma
+
+Crie a configuração local da conexão e aplique a migração inicial:
+
+```powershell
+Copy-Item backend\.env.example backend\.env
+npm install
+npm run prisma:migrate --workspace backend -- --name init
+```
+
+O schema e o histórico de migrações ficam em `backend/prisma`. A aplicação usa o
+PostgreSQL como fonte de dados. Para importar ou atualizar os estacionamentos,
+vagas e demais exemplos fictícios de `backend/db.json` (a operação pode ser
+repetida com segurança), execute:
+
+```powershell
+npm run db:import --workspace backend
+```
+
+Após a importação, a busca do motorista lista estacionamentos do banco. O
+Google Maps é opcional e serve para localizar o destino e calcular rotas entre
+ele e os estacionamentos que têm coordenadas cadastradas.
+
+### 5.3 Iniciar a API local
 
 No terminal, na raiz do projeto:
 
@@ -78,9 +127,19 @@ No terminal, na raiz do projeto:
 npm run api
 ```
 
-Isso inicia o servidor Express em `http://localhost:3000` com os dados temporários de `backend/db.json`. O backend oferece os mesmos formatos de coleção usados anteriormente pelo JSON Server.
+Isso inicia o servidor Express em `http://localhost:3000`, conectado ao
+PostgreSQL. Configure `backend/.env` e aplique as migrações antes da primeira
+execução.
 
-### 5.2 Iniciar o frontend
+Para validar as rotas Prisma usando o banco local, defina a variável de teste e
+execute:
+
+```powershell
+$env:PRISMA_TEST_DATABASE_URL = "postgresql://fluxopark:fluxopark_dev_only@localhost:5433/fluxopark?schema=public"
+npm run test:integration --workspace backend
+```
+
+### 5.4 Iniciar o frontend
 
 Abra um segundo terminal e execute:
 
@@ -91,7 +150,7 @@ npm run dev
 A aplicação fica disponível em uma URL local do Vite, normalmente algo como:
 
 - `http://localhost:5173/paginaInicialMotorista.html`
-- `http://localhost:5173/paginaReserva.html?placeId=demo-park-abc`
+- `http://localhost:5173/paginaReserva.html?parkingId=mock-parking`
 
 ## 6. Execução em produção local
 
@@ -110,13 +169,14 @@ npm.cmd start
 Acesso sugerido:
 
 - `http://localhost:3000/paginaInicialMotorista.html`
-- `http://localhost:3000/paginaReserva.html?placeId=demo-park-abc`
+- `http://localhost:3000/paginaReserva.html?parkingId=mock-parking`
 
 ## 7. Dados de demonstração
 
 O projeto inclui dados mockados em `backend/mocks/` e em `backend/db.json` para testes locais.
 
-Para usar um mock de exemplo, copie os objetos de cada coleção para o arquivo `backend/db.json` e reinicie a API.
+Para importar ou sincronizar os dados de `backend/db.json` no PostgreSQL,
+execute `npm run db:import --workspace backend`.
 
 A documentação detalhada dos perfis e credenciais está em:
 
@@ -138,8 +198,8 @@ As credenciais de ambiente local estão descritas em `DADOS_MOCKS.md`. Exemplo:
 
 ## 9. Dicas de manutenção
 
-- O backend Express salva temporariamente as alterações em `backend/db.json`.
-- Para limpar reservas de teste, pare a API e substitua o conteúdo de `reservations` por `[]`.
+- O backend Express salva as alterações no PostgreSQL.
+- Para consultar o banco, use pgAdmin ou Prisma Studio (`npm run prisma:studio --workspace backend`).
 - Não use dados reais de cartão, CPF, e-mail ou senha em ambiente local.
 - O projeto é uma demonstração de fluxo funcional e não possui autenticação e autorização de produção.
 

@@ -14,15 +14,15 @@
   "parkings": [
     {
       "id": "mock-estacionamento-valonguinho",
-      "googlePlaceId": "ChIJ37e0yxKDmQARQ1nMiBragMs",
-      "name": "Estacionamento Valonguinho - Niteroi Rotativo",
-      "address": "Av. Visconde do Rio Branco - Centro, Niterói - RJ, 24020-130, Brasil",
-      "phone": "+55 21 2621-4797",
+      "googlePlaceId": null,
+      "name": "Estacionamento 24h de Teste",
+      "address": "Rua de Demonstração, 80, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0012",
       "location": {
-        "lat": -22.8960886,
-        "lng": -43.1255404
+        "lat": -22.8948,
+        "lng": -43.1248
       },
-      "googleMapsUrl": "https://maps.app.goo.gl/nJqYyZjT9wQsKfiZ6",
+      "googleMapsUrl": null,
       "rating": 4,
       "reviewCount": 51,
       "partner": true,
@@ -75,7 +75,7 @@
         }
       },
       "allowsOvernight": true,
-      "testDataNotes": "Place ID, nome, endereço, telefone, coordenadas, nota, quantidade de avaliações e horário 24h obtidos da ficha do Google Maps. Tarifas, tags e vagas são dados genéricos para teste; parceria não confirmada."
+      "testDataNotes": "Dados inteiramente fictícios para testes. Não representam um estabelecimento real nem uma parceria confirmada."
     }
   ],
   "spots": [

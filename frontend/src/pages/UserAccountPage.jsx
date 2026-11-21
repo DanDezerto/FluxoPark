@@ -430,7 +430,7 @@ function UserAccountPage() {
 						{reservations.length === 0 && <p className="rounded-lg bg-[#f8fafc] px-4 py-6 text-center text-sm text-[#68738a]">Ainda não há reservas associadas a este cadastro.</p>}
 					</div>
 				</section>
-				<p role="note" className="rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-4 py-3 text-xs leading-5 text-[#785713]">Protótipo local: os dados ficam no json-server e esta sessão não é segura. Use somente informações fictícias.</p>
+				<p role="note" className="rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-4 py-3 text-xs leading-5 text-[#785713]">Protótipo local: os dados ficam no PostgreSQL e esta sessão não é segura. Use somente informações fictícias.</p>
 			</div>
 		</main>
 		{pendingReservationChange && <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#101a31]/60 p-4" onMouseDown={event => {if (event.target === event.currentTarget) setPendingReservationChange(null);}}>
@@ -448,7 +448,7 @@ function UserAccountPage() {
 								: "A alteração não muda o valor da reserva."}</p>
 						<p>Total atualizado: <strong>{formatCurrency(pendingReservationChange.previewTotal)}</strong>.</p>
 					</div>}
-				<p className="mt-4 rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-3 py-2.5 text-xs leading-5 text-[#785713]">Esta versão apenas registra a simulação no db.json. Não há estorno nem cobrança real.</p>
+				<p className="mt-4 rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-3 py-2.5 text-xs leading-5 text-[#785713]">Ajustes de pagamento são registrados no PostgreSQL apenas para demonstração. Não há estorno nem cobrança real.</p>
 				<div className="mt-5 flex flex-wrap justify-end gap-3">
 					<button type="button" disabled={Boolean(reservationBusyId)} onClick={() => setPendingReservationChange(null)} className="min-h-10 rounded-lg border border-[#d9dee8] px-4 text-sm font-semibold text-[#34415c] disabled:opacity-50">Voltar</button>
 					<button type="button" disabled={Boolean(reservationBusyId)} onClick={confirmReservationChange} className="min-h-10 rounded-lg bg-[#6250b5] px-4 text-sm font-semibold text-white disabled:opacity-60">{reservationBusyId ? "Salvando..." : pendingReservationChange.kind === "cancel" ? "Confirmar cancelamento" : "Confirmar alteração"}</button>

@@ -18,7 +18,7 @@ http://localhost:5173/paginaInicialMotorista.html
 Também é possível acessar diretamente a página de reserva com parâmetro de destino:
 
 ```text
-http://localhost:5173/paginaReserva.html?placeId=demo-park-abc
+http://localhost:5173/paginaReserva.html?parkingId=mock-parking
 ```
 
 ## 2. Perfis do sistema

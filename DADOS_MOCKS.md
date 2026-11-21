@@ -5,15 +5,15 @@ do FluxoPark:
 
 - `backend/mocks/motorista.json`: motorista e um veículo cadastrado.
 - `backend/mocks/estabelecimento.json`: conta de parceiro, estacionamento e vagas.
-- `backend/mocks/estabelecimento-valonguinho.json`: mock do Estacionamento Valonguinho,
-  com Place ID e informações públicas disponíveis no Google Maps.
+- `backend/mocks/estabelecimento-valonguinho.json`: estacionamento fictício 24h.
+  O nome do arquivo e alguns IDs de conta mantêm identificadores legados.
 - `backend/mocks/administrador.json`: conta administrativa.
 
-Os registros usam o formato das coleções JSON da API. Para usar um mock,
-adicione os objetos de cada coleção ao respectivo array em `backend/db.json` e reinicie
-o servidor da API. Evite inserir o mesmo `id` ou e-mail mais de uma vez. Os
-dados são genéricos e exclusivos para desenvolvimento local; não os use em
-produção.
+Os registros usam o formato das coleções JSON da API. Para usar um mock, adicione os objetos de cada coleção ao respectivo array em
+`backend/db.json` e execute `npm run db:import --workspace backend`. A API lê e
+grava os dados no PostgreSQL; o JSON é apenas a origem dos exemplos iniciais.
+Evite inserir o mesmo `id` ou e-mail mais de uma vez. Os dados são fictícios e
+exclusivos para desenvolvimento local; não os use em produção.
 
 ## Credenciais de teste
 
@@ -21,7 +21,7 @@ produção.
 | --- | --- | --- |
 | Motorista | `motorista@exemplo.test` | `MotoristaTeste2026!` |
 | Parceiro de estacionamento | `parceiro@exemplo.test` | `ParceiroTeste2026!` |
-| Parceiro Valonguinho | `valonguinho@exemplo.test` | `ValonguinhoTeste2026!` |
+| Parceiro (estacionamento 24h de teste) | `valonguinho@exemplo.test` | `ValonguinhoTeste2026!` |
 | Administrador | `administrador@exemplo.test` | `AdminTeste2026!` |
 
 O cadastro de novos administradores também exige o código configurado na API.
@@ -62,21 +62,20 @@ O valor da faixa selecionada é aplicado a cada hora da reserva. A faixa “Mais
 de 4 horas” também é aplicada após 12 horas; reservas continuam limitadas a 24
 horas.
 
-### Estacionamento Valonguinho
+### Estacionamento 24h de teste
 
-- Nome no Google Maps: `Estacionamento Valonguinho - Niteroi Rotativo`
-- Place ID: `ChIJ37e0yxKDmQARQ1nMiBragMs`
-- Endereço: Av. Visconde do Rio Branco - Centro, Niterói - RJ, 24020-130
-- Telefone: `+55 21 2621-4797`
-- Coordenadas: latitude `-22.8960886`, longitude `-43.1255404`
-- Avaliação indicada: `4.0/5`, com `51` avaliações
-- Horário indicado: aberto 24 horas todos os dias
-- Link enviado: <https://maps.app.goo.gl/nJqYyZjT9wQsKfiZ6>
+- Nome: `Estacionamento 24h de Teste`
+- Endereço fictício: Rua de Demonstração, 80, Centro, Niterói - RJ
+- Telefone fictício: `+55 21 90000-0012`
+- Coordenadas de demonstração: latitude `-22.8948`, longitude `-43.1248`
+- Avaliação fictícia: `4.0/5`, com `51` avaliações
+- Horário de demonstração: aberto 24 horas todos os dias
 - Identificadores locais: conta `mock-valonguinho-partner`, estacionamento
   `mock-estacionamento-valonguinho`
-- Os valores por faixa, a tolerância, as vagas e suas tags são exemplos
-  genéricos. O Google Maps não confirma preços, capacidade nem parceria com o
-  FluxoPark.
+- Esses identificadores permanecem por compatibilidade com os dados antigos;
+  o nome, telefone e localização usados no teste são fictícios.
+- Todos os dados são fictícios e não representam um estabelecimento ou parceria
+  real. Tarifas, vagas, tags e avaliações servem apenas para testes.
 
 ### Administrador
 

@@ -19,14 +19,14 @@ parceiros. Os pagamentos disponíveis nesta versão são demonstrativos.
 ## Estrutura do projeto
 
 - `frontend/` — aplicação React/Vite
-- `backend/` — API local JSON Server, banco `db.json` e mocks
+- `backend/` — API Express, schema/migrações Prisma e dados de demonstração legados
 
 ## Tecnologias utilizadas
 
 - **Interface:** HTML, CSS, JavaScript e React 18
 - **Desenvolvimento e build:** Vite
 - **Estilização:** Tailwind CSS e arquivos CSS próprios
-- **Dados e API local:** Node.js, Express e persistência temporária em JSON
+- **API e persistência:** Node.js, Express, Prisma ORM e PostgreSQL
 - **Consultas e formulários:** TanStack Query, React Hook Form e Zod
 - **Mapas e busca geográfica:** Google Maps Platform
 

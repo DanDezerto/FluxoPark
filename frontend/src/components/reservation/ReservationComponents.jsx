@@ -183,7 +183,7 @@ export function ReservationHeader({onBack}) {
 
 		export function BookingApiStatus({isLoading, apiError}) {
 			return <div className={`mt-5 rounded-lg px-4 py-3 text-xs leading-5 ${apiError ? "border border-red-200 bg-red-50 text-red-800" : "border border-[#f1dfae] bg-[#fff9e9] text-[#785713]"}`} role={apiError ? "alert" : "status"}>
-				{isLoading ? "Carregando estacionamentos, vagas e reservas da API local..." : apiError ? apiError : <><strong>API local conectada:</strong> disponibilidade, tarifas e reservas são lidas e gravadas no json-server. O pagamento continua simulado.</>}
+				{isLoading ? "Carregando estacionamentos, vagas e reservas da API local..." : apiError ? apiError : <><strong>API Express conectada:</strong> disponibilidade, tarifas e reservas são lidas e gravadas no PostgreSQL. O pagamento continua simulado.</>}
 			</div>;
 		}
 
@@ -265,7 +265,7 @@ export function ReservationHeader({onBack}) {
 				<div className="mt-4 flex items-center justify-between gap-3 text-sm"><span className="text-[#68738a]">Tarifa aplicada{rateTierLabel ? ` · ${rateTierLabel}` : ""}</span><span className="shrink-0">R$ {hourlyRate.toFixed(2).replace(".", ",")}/h</span></div>
 				<div className="mt-3 flex items-center justify-between text-sm"><span className="text-[#68738a]">Pagamento escolhido</span><span>{paymentMethod}</span></div>
 				<div className="mt-5 flex items-end justify-between border-t border-[#edf0f5] pt-4"><span className="font-semibold">Total estimado</span><strong className="font-display text-2xl text-[#7c3aed]">R$ {price.toFixed(2).replace(".", ",")}</strong></div>
-				<p className="mt-5 rounded-lg bg-[#f8fafc] p-3 text-xs leading-5 text-[#68738a]">Valor e disponibilidade vêm do db.json. A gravação local demonstra a reserva, mas o json-server não é um backend transacional para uso real.</p>
+				<p className="mt-5 rounded-lg bg-[#f8fafc] p-3 text-xs leading-5 text-[#68738a]">Valor, disponibilidade e reserva vêm da API Express conectada ao PostgreSQL. O pagamento é apenas demonstrativo.</p>
 				{placeId && <p className="mt-3 break-all text-[10px] text-[#9aa3b4]">ID do local: {placeId}</p>}
 			</aside>;
 		}
@@ -394,7 +394,7 @@ export function ReservationHeader({onBack}) {
 							<div><dt className="text-[#68738a]">Total estimado</dt><dd className="mt-1 font-semibold">R$ {Number(reservation.totalAmount).toFixed(2).replace(".", ",")}</dd></div>
 						</dl>
 					</div>
-					<p className="mt-4 text-center text-xs leading-5 text-[#758098]">A API local grava esta reserva no arquivo db.json. Como o json-server não implementa transações, esta demonstração não garante exclusividade em acessos simultâneos.</p>
+					<p className="mt-4 text-center text-xs leading-5 text-[#758098]">A reserva e a disponibilidade são persistidas no PostgreSQL; o pagamento continua simulado.</p>
 					<a href="paginaInicialMotorista.html" className="mt-7 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#1d2b52] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#2c4177]">Voltar para a busca</a>
 				</section>
 			</main>;

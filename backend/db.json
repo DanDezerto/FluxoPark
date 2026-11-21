@@ -2,11 +2,17 @@
   "parkings": [
     {
       "id": "park-abc",
-      "googlePlaceId": "demo-park-abc",
+      "googlePlaceId": null,
       "name": "Estacionamento ABC",
-      "address": "Rua das Flores, 120, São Paulo - SP",
+      "address": "Rua das Flores, 120, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0001",
+      "location": {
+        "lat": -22.8960,
+        "lng": -43.1245
+      },
       "partner": true,
       "rating": 4.8,
+      "reviewCount": 32,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 24,
@@ -24,15 +30,31 @@
           "over4Hours": 18
         }
       },
-      "toleranceMinutes": 15
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {"open": "08:00", "close": "22:00"},
+        "1": {"open": "07:00", "close": "22:00"},
+        "2": {"open": "07:00", "close": "22:00"},
+        "3": {"open": "07:00", "close": "22:00"},
+        "4": {"open": "07:00", "close": "22:00"},
+        "5": {"open": "07:00", "close": "23:00"},
+        "6": {"open": "08:00", "close": "23:00"}
+      },
+      "allowsOvernight": false
     },
     {
       "id": "park-def",
-      "googlePlaceId": "demo-park-def",
+      "googlePlaceId": null,
       "name": "Estacionamento DEF",
-      "address": "Avenida Central, 845, São Paulo - SP",
+      "address": "Avenida Central, 845, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0002",
+      "location": {
+        "lat": -22.8980,
+        "lng": -43.1260
+      },
       "partner": true,
       "rating": 4.6,
+      "reviewCount": 21,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 20,
@@ -51,17 +73,30 @@
         }
       },
       "toleranceMinutes": 10,
-      "banned": true,
-      "banUntil": "2026-10-13T06:46:05.290Z",
-      "banReason": "estacionamento pagará pelo dano"
+      "openingHours": {
+        "0": {"open": "08:00", "close": "22:00"},
+        "1": {"open": "07:00", "close": "22:00"},
+        "2": {"open": "07:00", "close": "22:00"},
+        "3": {"open": "07:00", "close": "22:00"},
+        "4": {"open": "07:00", "close": "22:00"},
+        "5": {"open": "07:00", "close": "23:00"},
+        "6": {"open": "08:00", "close": "23:00"}
+      },
+      "allowsOvernight": false
     },
     {
       "id": "park-ghi",
-      "googlePlaceId": "demo-park-ghi",
+      "googlePlaceId": null,
       "name": "Estacionamento GHI",
-      "address": "Rua do Comércio, 42, São Paulo - SP",
+      "address": "Rua do Comércio, 42, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0003",
+      "location": {
+        "lat": -22.8940,
+        "lng": -43.1255
+      },
       "partner": true,
       "rating": 4.5,
+      "reviewCount": 18,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 28,
@@ -79,15 +114,31 @@
           "over4Hours": 22
         }
       },
-      "toleranceMinutes": 15
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {"open": "00:00", "close": "00:00"},
+        "1": {"open": "00:00", "close": "00:00"},
+        "2": {"open": "00:00", "close": "00:00"},
+        "3": {"open": "00:00", "close": "00:00"},
+        "4": {"open": "00:00", "close": "00:00"},
+        "5": {"open": "00:00", "close": "00:00"},
+        "6": {"open": "00:00", "close": "00:00"}
+      },
+      "allowsOvernight": true
     },
     {
       "id": "park-jkl",
-      "googlePlaceId": "demo-park-jkl",
+      "googlePlaceId": null,
       "name": "Estacionamento JKL",
-      "address": "Alameda Santos, 300, São Paulo - SP",
+      "address": "Alameda das Palmeiras, 300, Icaraí, Niterói - RJ",
+      "phone": "+55 21 90000-0004",
+      "location": {
+        "lat": -22.9000,
+        "lng": -43.1240
+      },
       "partner": true,
       "rating": 4.3,
+      "reviewCount": 15,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 26,
@@ -105,15 +156,31 @@
           "over4Hours": 20
         }
       },
-      "toleranceMinutes": 15
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {"open": "08:00", "close": "20:00"},
+        "1": {"open": "06:00", "close": "22:00"},
+        "2": {"open": "06:00", "close": "22:00"},
+        "3": {"open": "06:00", "close": "22:00"},
+        "4": {"open": "06:00", "close": "22:00"},
+        "5": {"open": "06:00", "close": "23:00"},
+        "6": {"open": "08:00", "close": "23:00"}
+      },
+      "allowsOvernight": false
     },
     {
       "id": "park-mno",
-      "googlePlaceId": "demo-park-mno",
+      "googlePlaceId": null,
       "name": "Estacionamento MNO",
-      "address": "Rua Pamplona, 56, São Paulo - SP",
+      "address": "Rua das Garças, 56, Icaraí, Niterói - RJ",
+      "phone": "+55 21 90000-0005",
+      "location": {
+        "lat": -22.8970,
+        "lng": -43.1200
+      },
       "partner": true,
       "rating": 4.7,
+      "reviewCount": 27,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 22,
@@ -131,15 +198,31 @@
           "over4Hours": 16
         }
       },
-      "toleranceMinutes": 10
+      "toleranceMinutes": 10,
+      "openingHours": {
+        "0": {"open": "07:00", "close": "23:00"},
+        "1": {"open": "06:00", "close": "23:00"},
+        "2": {"open": "06:00", "close": "23:00"},
+        "3": {"open": "06:00", "close": "23:00"},
+        "4": {"open": "06:00", "close": "23:00"},
+        "5": {"open": "06:00", "close": "23:00"},
+        "6": {"open": "07:00", "close": "23:00"}
+      },
+      "allowsOvernight": true
     },
     {
       "id": "park-pqr",
-      "googlePlaceId": "demo-park-pqr",
+      "googlePlaceId": null,
       "name": "Estacionamento PQR",
-      "address": "Avenida Nove de Julho, 410, São Paulo - SP",
+      "address": "Avenida das Acácias, 410, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0006",
+      "location": {
+        "lat": -22.8930,
+        "lng": -43.1220
+      },
       "partner": true,
       "rating": 4.2,
+      "reviewCount": 12,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 18,
@@ -157,15 +240,31 @@
           "over4Hours": 12
         }
       },
-      "toleranceMinutes": 20
+      "toleranceMinutes": 20,
+      "openingHours": {
+        "0": {"open": "08:00", "close": "20:00"},
+        "1": {"open": "07:00", "close": "21:00"},
+        "2": {"open": "07:00", "close": "21:00"},
+        "3": {"open": "07:00", "close": "21:00"},
+        "4": {"open": "07:00", "close": "21:00"},
+        "5": {"open": "07:00", "close": "22:00"},
+        "6": {"open": "08:00", "close": "22:00"}
+      },
+      "allowsOvernight": false
     },
     {
       "id": "park-7a892027-a4bd-4907-a95a-8b40d1cd6519",
-      "name": "estacionamento coxinha",
-      "address": "rua coxinha, 123",
+      "name": "Estacionamento Coxinha (Teste)",
+      "address": "Rua de Demonstração, 123, Centro, Niterói - RJ",
       "googlePlaceId": null,
+      "phone": "+55 21 90000-0007",
+      "location": {
+        "lat": -22.8971,
+        "lng": -43.1236
+      },
       "partner": true,
       "rating": 5,
+      "reviewCount": 9,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 2,
@@ -183,15 +282,31 @@
           "over4Hours": 3
         }
       },
-      "toleranceMinutes": 15
+      "toleranceMinutes": 15,
+      "openingHours": {
+        "0": {"open": "08:00", "close": "20:00"},
+        "1": {"open": "07:00", "close": "22:00"},
+        "2": {"open": "07:00", "close": "22:00"},
+        "3": {"open": "07:00", "close": "22:00"},
+        "4": {"open": "07:00", "close": "22:00"},
+        "5": {"open": "07:00", "close": "23:00"},
+        "6": {"open": "08:00", "close": "23:00"}
+      },
+      "allowsOvernight": false
     },
     {
       "id": "park-plaza-niteroi",
       "googlePlaceId": null,
-      "name": "Estacionamento do Plaza Shopping Niterói",
-      "address": "Rua XV de Novembro, 8, Centro, Niterói - RJ",
+      "name": "Estacionamento Praça do Centro (Teste)",
+      "address": "Rua de Demonstração, 8, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0008",
+      "location": {
+        "lat": -22.8963,
+        "lng": -43.1242
+      },
       "partner": true,
       "rating": 4.2,
+      "reviewCount": 17,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 24,
@@ -245,10 +360,16 @@
     {
       "id": "park-bay-market-niteroi",
       "googlePlaceId": null,
-      "name": "Estacionamento Bay Market",
-      "address": "Avenida Visconde do Rio Branco, 360, Centro, Niterói - RJ",
+      "name": "Estacionamento Baía do Centro (Teste)",
+      "address": "Avenida de Demonstração, 360, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0010",
+      "location": {
+        "lat": -22.8955,
+        "lng": -43.1262
+      },
       "partner": true,
       "rating": 4,
+      "reviewCount": 11,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 20,
@@ -301,11 +422,17 @@
     },
     {
       "id": "park-partner-request-2f93edac-a5f4-4700-a867-5e552d90706e",
-      "name": "Daniel Dezerto Rimes",
-      "address": "Rua Professor Otacílio, 30",
-      "googlePlaceId": "teste",
+      "name": "Estacionamento Central de Exemplo",
+      "address": "Rua do Exemplo, 30, Centro, Niterói - RJ",
+      "googlePlaceId": null,
+      "phone": "+55 21 90000-0011",
+      "location": {
+        "lat": -22.8978,
+        "lng": -43.1228
+      },
       "partner": true,
       "rating": 4.5,
+      "reviewCount": 14,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 6,
@@ -355,15 +482,15 @@
     },
     {
       "id": "mock-estacionamento-valonguinho",
-      "googlePlaceId": "ChIJ37e0yxKDmQARQ1nMiBragMs",
-      "name": "Estacionamento Valonguinho - Niteroi Rotativo",
-      "address": "Av. Visconde do Rio Branco - Centro, Niterói - RJ, 24020-130, Brasil",
-      "phone": "+55 21 2621-4797",
+      "googlePlaceId": null,
+      "name": "Estacionamento 24h de Teste",
+      "address": "Rua de Demonstração, 80, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0012",
       "location": {
-        "lat": -22.8960886,
-        "lng": -43.1255404
+        "lat": -22.8948,
+        "lng": -43.1248
       },
-      "googleMapsUrl": "https://maps.app.goo.gl/nJqYyZjT9wQsKfiZ6",
+      "googleMapsUrl": null,
       "rating": 4,
       "reviewCount": 51,
       "partner": true,
@@ -416,15 +543,21 @@
         }
       },
       "allowsOvernight": true,
-      "testDataNotes": "Place ID, nome, endereço, telefone, coordenadas, nota, quantidade de avaliações e horário 24h obtidos da ficha do Google Maps. Tarifas, tags e vagas são dados genéricos para teste; parceria não confirmada."
+      "testDataNotes": "Dados inteiramente fictícios para testes. Não representam um estabelecimento real nem uma parceria confirmada."
     },
     {
       "id": "mock-parking",
       "googlePlaceId": null,
       "name": "Estacionamento de Teste",
       "address": "Rua de Exemplo, 100, Centro, Niterói - RJ",
+      "phone": "+55 21 90000-0013",
+      "location": {
+        "lat": -22.8984,
+        "lng": -43.1240
+      },
       "partner": true,
       "rating": 4.5,
+      "reviewCount": 8,
       "hourlyRates": {
         "Coberta": {
           "upTo1Hour": 8,
@@ -1036,7 +1169,7 @@
     {
       "code": "FP-D1338C0C",
       "parkingId": "mock-estacionamento-valonguinho",
-      "parkingName": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "parkingName": "Estacionamento 24h de Teste",
       "spotId": "mock-valonguinho-covered",
       "spotLabel": "COB-01",
       "driverName": "Daniel Dezerto Rimes",
@@ -1065,7 +1198,7 @@
     {
       "code": "FP-721F4DDB",
       "parkingId": "mock-estacionamento-valonguinho",
-      "parkingName": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "parkingName": "Estacionamento 24h de Teste",
       "spotId": "mock-valonguinho-covered",
       "spotLabel": "COB-01",
       "driverName": "Motorista de Teste",
@@ -1094,7 +1227,7 @@
     {
       "code": "FP-96B3160E",
       "parkingId": "mock-estacionamento-valonguinho",
-      "parkingName": "Estacionamento Valonguinho - Niteroi Rotativo",
+      "parkingName": "Estacionamento 24h de Teste",
       "spotId": "mock-valonguinho-covered",
       "spotLabel": "COB-01",
       "driverName": "Motorista de Teste",

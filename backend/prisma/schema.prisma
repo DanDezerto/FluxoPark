@@ -1,0 +1,413 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountRoleType {
+  DRIVER
+  ADMIN
+  PARTNER
+}
+
+enum MembershipRole {
+  OWNER
+  MANAGER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ReservationStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentTransactionType {
+  CHARGE
+  ADDITIONAL_CHARGE
+  REFUND
+}
+
+enum ReportStatus {
+  PENDING
+  ANSWERED
+}
+
+enum PartnerRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Account {
+  id             String              @id @default(cuid())
+  name           String
+  email          String              @unique
+  phone          String?
+  cpf            String?             @unique
+  passwordDigest String
+  active         Boolean             @default(true)
+  createdAt      DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime            @updatedAt @db.Timestamptz(3)
+  archivedAt     DateTime?           @db.Timestamptz(3)
+  roles          AccountRole[]
+  driverProfile  DriverProfile?
+  adminProfile   AdminProfile?
+  vehicles       Vehicle[]
+  memberships    CompanyMembership[]
+  reservations   Reservation[]       @relation("ReservationDriver")
+  reports        Report[]
+  paymentMethods PaymentMethod[]
+
+  @@map("accounts")
+}
+
+model AccountRole {
+  accountId String
+  role      AccountRoleType
+  account   Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id([accountId, role])
+  @@map("account_roles")
+}
+
+model DriverProfile {
+  accountId      String  @id
+  legacyId       String? @unique
+  passwordDigest String?
+  account        Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@map("driver_profiles")
+}
+
+model AdminProfile {
+  accountId        String           @id
+  legacyId         String?          @unique
+  cpf              String?          @unique
+  passwordDigest   String?
+  account          Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  answeredReports  Report[]         @relation("ReportAdministrator")
+  reviewedRequests PartnerRequest[] @relation("PartnerRequestAdministrator")
+
+  @@map("admin_profiles")
+}
+
+model Company {
+  id              String              @id @default(cuid())
+  name            String
+  cnpj            String              @unique
+  createdAt       DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime            @updatedAt @db.Timestamptz(3)
+  active          Boolean             @default(true)
+  archivedAt      DateTime?           @db.Timestamptz(3)
+  memberships     CompanyMembership[]
+  parkings        Parking[]
+  approvedRequest PartnerRequest?     @relation("ApprovedPartnerRequest")
+
+  @@map("companies")
+}
+
+model CompanyMembership {
+  id         String           @id @default(cuid())
+  accountId  String
+  companyId  String
+  role       MembershipRole
+  status     MembershipStatus @default(ACTIVE)
+  createdAt  DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime         @updatedAt @db.Timestamptz(3)
+  legacyData Json?            @db.JsonB
+  account    Account          @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  company    Company          @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([accountId, companyId])
+  @@index([companyId, status])
+  @@map("company_memberships")
+}
+
+model Vehicle {
+  id           String        @id @default(cuid())
+  accountId    String
+  plate        String
+  model        String
+  color        String?
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @db.Timestamptz(3)
+  archivedAt   DateTime?     @db.Timestamptz(3)
+  account      Account       @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  reservations Reservation[]
+
+  @@index([accountId, active, plate])
+  @@map("vehicles")
+}
+
+model Parking {
+  id               String         @id @default(cuid())
+  companyId        String?
+  googlePlaceId    String?        @unique
+  name             String
+  address          String
+  phone            String?
+  rating           Float?
+  reviewCount      Int?
+  partner          Boolean        @default(false)
+  latitude         Float?         @db.DoublePrecision
+  longitude        Float?         @db.DoublePrecision
+  toleranceMinutes Int            @default(0)
+  allowsOvernight  Boolean        @default(false)
+  banned           Boolean        @default(false)
+  banUntil         DateTime?      @db.Timestamptz(3)
+  banReason        String?
+  active           Boolean        @default(true)
+  createdAt        DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime       @updatedAt @db.Timestamptz(3)
+  archivedAt       DateTime?      @db.Timestamptz(3)
+  legacyData       Json?          @db.JsonB
+  company          Company?       @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  spots            ParkingSpot[]
+  openingHours     OpeningHours[]
+  rates            ParkingRate[]
+  reports          Report[]
+
+  @@index([companyId, active])
+  @@map("parkings")
+}
+
+model ParkingSpot {
+  id           String        @id @default(cuid())
+  parkingId    String
+  label        String
+  type         String
+  features     String[]      @default([])
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @db.Timestamptz(3)
+  archivedAt   DateTime?     @db.Timestamptz(3)
+  parking      Parking       @relation(fields: [parkingId], references: [id], onDelete: Restrict)
+  reservations Reservation[]
+
+  @@index([parkingId, active, label])
+  @@map("parking_spots")
+}
+
+model OpeningHours {
+  id        String   @id @default(cuid())
+  parkingId String
+  weekday   Int
+  opensAt   DateTime @db.Time(0)
+  closesAt  DateTime @db.Time(0)
+  parking   Parking  @relation(fields: [parkingId], references: [id], onDelete: Cascade)
+
+  @@unique([parkingId, weekday])
+  @@map("opening_hours")
+}
+
+model ParkingRate {
+  id                 String  @id @default(cuid())
+  parkingId          String
+  featureType        String
+  minDurationMinutes Int
+  maxDurationMinutes Int?
+  hourlyRate         Decimal @db.Decimal(10, 2)
+  parking            Parking @relation(fields: [parkingId], references: [id], onDelete: Cascade)
+
+  @@unique([parkingId, featureType, minDurationMinutes])
+  @@index([parkingId, featureType])
+  @@map("parking_rates")
+}
+
+model Reservation {
+  id                     String               @id @default(cuid())
+  code                   String               @unique
+  driverAccountId        String?
+  vehicleId              String?
+  spotId                 String?
+  startAt                DateTime             @db.Timestamptz(3)
+  endAt                  DateTime             @db.Timestamptz(3)
+  status                 ReservationStatus    @default(CONFIRMED)
+  parkingNameSnapshot    String
+  parkingAddressSnapshot String?
+  spotLabelSnapshot      String
+  spotTypeSnapshot       String
+  spotFeaturesSnapshot   String[]             @default([])
+  vehiclePlateSnapshot   String?
+  vehicleModelSnapshot   String?
+  tariffFeatureSnapshot  String
+  tariffBandSnapshot     String?
+  hourlyRateSnapshot     Decimal              @db.Decimal(10, 2)
+  initialTotalAmount     Decimal              @db.Decimal(10, 2)
+  currentTotalAmount     Decimal              @db.Decimal(10, 2)
+  currency               String               @default("BRL")
+  createdAt              DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime             @updatedAt @db.Timestamptz(3)
+  cancelledAt            DateTime?            @db.Timestamptz(3)
+  completedAt            DateTime?            @db.Timestamptz(3)
+  legacyData             Json?                @db.JsonB
+  driver                 Account?             @relation("ReservationDriver", fields: [driverAccountId], references: [id], onDelete: SetNull)
+  vehicle                Vehicle?             @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  spot                   ParkingSpot?         @relation(fields: [spotId], references: [id], onDelete: SetNull)
+  transactions           PaymentTransaction[]
+  review                 Review?
+  reports                Report[]
+
+  @@index([spotId, status, startAt, endAt])
+  @@index([driverAccountId, createdAt])
+  @@map("reservations")
+}
+
+model PaymentTransaction {
+  id                   String                 @id @default(cuid())
+  reservationId        String
+  type                 PaymentTransactionType
+  amount               Decimal                @db.Decimal(10, 2)
+  currency             String                 @default("BRL")
+  paymentMethod        String
+  description          String?
+  relatedTransactionId String?
+  createdAt            DateTime               @default(now()) @db.Timestamptz(3)
+  legacyData           Json?                  @db.JsonB
+  reservation          Reservation            @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  relatedTransaction   PaymentTransaction?    @relation("TransactionReversal", fields: [relatedTransactionId], references: [id], onDelete: SetNull)
+  reversals            PaymentTransaction[]   @relation("TransactionReversal")
+
+  @@index([reservationId, createdAt])
+  @@map("payment_transactions")
+}
+
+model PaymentMethod {
+  id         String   @id
+  accountId  String
+  holder     String
+  expiry     String
+  type       String
+  brand      String?
+  last4      String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+  legacyData Json?    @db.JsonB
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, isDefault])
+  @@map("payment_methods")
+}
+
+model Review {
+  id            String      @id @default(cuid())
+  reservationId String      @unique
+  rating        Int
+  comment       String?
+  createdAt     DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime    @updatedAt @db.Timestamptz(3)
+  removedAt     DateTime?   @db.Timestamptz(3)
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+
+  @@index([removedAt, createdAt])
+  @@map("reviews")
+}
+
+model Report {
+  id                  String        @id @default(cuid())
+  driverAccountId     String?
+  parkingId           String?
+  reservationId       String?
+  category            String
+  details             String
+  status              ReportStatus  @default(PENDING)
+  driverNameSnapshot  String?
+  driverEmailSnapshot String?
+  parkingNameSnapshot String?
+  adminResponse       String?
+  administratorId     String?
+  answeredAt          DateTime?     @db.Timestamptz(3)
+  penalty             String?
+  createdAt           DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime      @updatedAt @db.Timestamptz(3)
+  legacyData          Json?         @db.JsonB
+  driver              Account?      @relation(fields: [driverAccountId], references: [id], onDelete: SetNull)
+  parking             Parking?      @relation(fields: [parkingId], references: [id], onDelete: SetNull)
+  reservation         Reservation?  @relation(fields: [reservationId], references: [id], onDelete: SetNull)
+  administrator       AdminProfile? @relation("ReportAdministrator", fields: [administratorId], references: [accountId], onDelete: SetNull)
+
+  @@index([driverAccountId, createdAt])
+  @@index([status, createdAt])
+  @@map("reports")
+}
+
+model PartnerRequest {
+  id                 String                  @id @default(cuid())
+  companyName        String?
+  cnpj               String
+  email              String
+  phone              String?
+  passwordDigest     String
+  parkingName        String
+  parkingAddress     String
+  googlePlaceId      String?
+  parkingPhone       String?
+  latitude           Float?                  @db.DoublePrecision
+  longitude          Float?                  @db.DoublePrecision
+  toleranceMinutes   Int                     @default(0)
+  allowsOvernight    Boolean                 @default(false)
+  status             PartnerRequestStatus    @default(PENDING)
+  rejectionReason    String?
+  administratorId    String?
+  resultingCompanyId String?                 @unique
+  createdAt          DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime                @updatedAt @db.Timestamptz(3)
+  reviewedAt         DateTime?               @db.Timestamptz(3)
+  legacyData         Json?                   @db.JsonB
+  administrator      AdminProfile?           @relation("PartnerRequestAdministrator", fields: [administratorId], references: [accountId], onDelete: SetNull)
+  resultingCompany   Company?                @relation("ApprovedPartnerRequest", fields: [resultingCompanyId], references: [id], onDelete: SetNull)
+  requestedSpots     RequestedSpot[]
+  requestedHours     RequestedOpeningHours[]
+  requestedRates     RequestedRate[]
+
+  @@index([email, status])
+  @@index([cnpj, status])
+  @@map("partner_requests")
+}
+
+model RequestedSpot {
+  id               String         @id @default(cuid())
+  partnerRequestId String
+  label            String
+  type             String
+  features         String[]       @default([])
+  partnerRequest   PartnerRequest @relation(fields: [partnerRequestId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerRequestId, label])
+  @@map("requested_spots")
+}
+
+model RequestedOpeningHours {
+  id               String         @id @default(cuid())
+  partnerRequestId String
+  weekday          Int
+  opensAt          DateTime       @db.Time(0)
+  closesAt         DateTime       @db.Time(0)
+  partnerRequest   PartnerRequest @relation(fields: [partnerRequestId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerRequestId, weekday])
+  @@map("requested_opening_hours")
+}
+
+model RequestedRate {
+  id                 String         @id @default(cuid())
+  partnerRequestId   String
+  featureType        String
+  minDurationMinutes Int
+  maxDurationMinutes Int?
+  hourlyRate         Decimal        @db.Decimal(10, 2)
+  partnerRequest     PartnerRequest @relation(fields: [partnerRequestId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerRequestId, featureType, minDurationMinutes])
+  @@map("requested_rates")
+}

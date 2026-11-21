@@ -242,7 +242,7 @@ function ParkingAdminPage() {
 			if (!partnerSession) {
 				const [accounts, requests] = await Promise.all([demoRequest("parkingAccounts"), demoRequest("partnerRequests")]);
 				if (accounts.some(account => account.email.toLowerCase() === email || account.cnpj === cnpj) ||
-					requests.some(request => request.email.toLowerCase() === email || request.cnpj === cnpj)) {
+					requests.some(request => request.status === "pending" && (request.email.toLowerCase() === email || request.cnpj === cnpj))) {
 					throw new Error("Já existe um cadastro ou solicitação de parceiro com este e-mail ou CNPJ.");
 				}
 				const normalizedFeatures = normalizedSpots.map(spot => ({...spot, features:featuresForSpot(spot)}));
@@ -446,7 +446,7 @@ function ParkingAdminPage() {
 					</div>}
 				</section>
 			</div>
-			<p className="mt-6 rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-4 py-3 text-xs leading-5 text-[#785713]">Protótipo local: alterações são gravadas no json-server. Os controles de login e acesso não substituem autenticação real; use apenas dados fictícios.</p>
+			<p className="mt-6 rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-4 py-3 text-xs leading-5 text-[#785713]">Protótipo local: alterações são gravadas no PostgreSQL. Os controles de login e acesso não substituem autenticação real; use apenas dados fictícios.</p>
 		</main>
 	</div>;
 }

@@ -144,11 +144,9 @@ export function DriverHeader({query, onQueryChange, onSelectDestination, mapRead
 			const [reportError, setReportError] = React.useState("");
 			const [reportNotice, setReportNotice] = React.useState("");
 			const [reporting, setReporting] = React.useState(false);
-			const distanceLabel = option.source === "local"
-				? "Distância depende da busca real"
-				: option.walkingMinutes === Number.MAX_SAFE_INTEGER
-					? "Rota a pé indisponível"
-					: `${option.walkingMinutes} min a pé · ${option.distanceMeters < 1000 ? `${option.distanceMeters} m` : `${(option.distanceMeters / 1000).toFixed(1)} km`}`;
+			const distanceLabel = option.walkingMinutes === Number.MAX_SAFE_INTEGER
+				? option.source === "database" ? "Distância disponível após buscar destino" : "Rota a pé indisponível"
+				: `${option.walkingMinutes} min a pé · ${option.distanceMeters < 1000 ? `${option.distanceMeters} m` : `${(option.distanceMeters / 1000).toFixed(1)} km`}`;
 			const priceLabel = option.hourlyRate
 				? `R$ ${option.hourlyRate.toFixed(2).replace(".", ",")}/h`
 				: option.priceLevel
@@ -218,7 +216,7 @@ export function DriverHeader({query, onQueryChange, onSelectDestination, mapRead
 					</section>
 				</div>, document.body)}
 				{isSelected && <div className="border-t border-[#edf0f5] bg-[#fafbfe] px-4 py-3.5">
-					<div className="mb-3 flex items-center justify-between"><h3 className="font-display text-sm font-semibold">Sobre este estacionamento</h3><span className="text-xs text-[#758098]">{option.source === "local" ? "Dados do projeto" : option.detailsLoaded ? "Informações do Google" : "Carregando detalhes..."}</span></div>
+					<div className="mb-3 flex items-center justify-between"><h3 className="font-display text-sm font-semibold">Sobre este estacionamento</h3><span className="text-xs text-[#758098]">{option.source === "database" ? "Dados cadastrados no FluxoPark" : option.detailsLoaded ? "Informações do Google" : "Carregando detalhes..."}</span></div>
 					{option.photos?.length > 0 ? <div className="grid grid-cols-4 gap-1.5" aria-label="Fotos do estacionamento">{option.photos.map((photo, photoIndex) => <img key={photoIndex} src={photo} alt={`Foto de ${option.name}`} className="h-12 w-full rounded-md object-cover" loading="lazy" />)}</div> : <p className="text-xs text-[#68738a]">Fotos indisponíveis.</p>}
 					{option.rating > 0 && <p className="mt-3 text-xs text-[#526079]">Avaliação: <strong className="text-[#253653]">★ {option.rating.toFixed(1)}</strong>{option.reviewCount ? ` · ${option.reviewCount} avaliações` : ""}</p>}
 					{option.phone && <p className="mt-2 text-xs text-[#526079]">Contato: <strong className="text-[#253653]">{option.phone}</strong></p>}
@@ -226,8 +224,8 @@ export function DriverHeader({query, onQueryChange, onSelectDestination, mapRead
 					{option.reviews?.length > 0 && <div className="mt-3 text-xs text-[#526079]"><strong className="text-[#253653]">Comentários recentes</strong><ul className="mt-1 grid gap-2">{option.reviews.slice(0,3).map((review, reviewIndex) => <li key={reviewIndex} className="rounded-md bg-white p-2"><strong>{review.authorAttribution?.displayName || "Usuário do Google"}</strong><span className="ml-2">★ {review.rating || "—"}</span><p className="mt-1">{review.text?.text || "Comentário sem texto"}</p></li>)}</ul></div>}
 					{option.priceLevel === 0 && !option.hourlyRate && <p className="mt-2 text-xs text-[#526079]">Preço não informado pelo Google.</p>}
 					{option.place && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs"><span className="text-[#526079]">Informações fornecidas pelo Google Maps</span><a href={option.googleMapsURI || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(option.name + " " + option.address)}`} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#1d2b52] px-3 py-2 font-semibold text-white transition hover:bg-[#2c4177]">Abrir no Google Maps ↗</a></div>}
-					{option.source === "local" && <p className="mt-3 text-xs text-[#758098]">Dados cadastrados no json-server. A lista de teste não representa a proximidade do destino informado.</p>}
-					{!option.place && option.source !== "local" && <p className="mt-3 text-xs text-[#758098]">Este resultado é de demonstração.</p>}
+					{option.source === "database" && <p className="mt-3 text-xs text-[#758098]">Estacionamento carregado do banco de dados do FluxoPark.</p>}
+					{!option.place && option.source !== "database" && <p className="mt-3 text-xs text-[#758098]">Este resultado é de demonstração.</p>}
 				</div>}
 			</article>;
 		}

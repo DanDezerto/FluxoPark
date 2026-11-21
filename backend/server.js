@@ -2,6 +2,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const express = require("express");
+require("dotenv").config({path:path.join(__dirname, ".env")});
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -9,9 +10,24 @@ const databaseFile = process.env.DB_FILE
 	? path.resolve(process.env.DB_FILE)
 	: path.join(__dirname, "db.json");
 const administratorRegistrationCode = process.env.ADMIN_REGISTRATION_CODE || "administrador123";
+let reservationCompletionTimer;
 
 app.use(express.json());
 
+if (process.argv.includes("--static")) {
+	app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
+}
+
+let prisma;
+if (!process.env.DB_FILE) {
+	if (!process.env.DATABASE_URL) {
+		throw new Error("DATABASE_URL não foi definida. Copie backend/.env.example para backend/.env ou defina a variável de ambiente.");
+	}
+	const {PrismaClient} = require("@prisma/client");
+	prisma = new PrismaClient();
+	app.locals.prisma = prisma;
+	require("./prismaRoutes")(app, prisma);
+} else {
 function readDatabase() {
 	return JSON.parse(fs.readFileSync(databaseFile, "utf8"));
 }
@@ -31,10 +47,6 @@ function matchesFilter(item, query) {
 		if (typeof item[key] === "number") return String(item[key]) === String(value);
 		return item[key] != null && String(item[key]).toLowerCase() === String(value).toLowerCase();
 	});
-}
-
-if (process.argv.includes("--static")) {
-	app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
 }
 
 app.post("/admin/register", (request, response) => {
@@ -141,23 +153,64 @@ app.delete("/:collection/:id", (request, response) => {
 	writeDatabase(database);
 	response.json(removed);
 });
+}
 
 app.use((request, response) => {
 	response.status(404).json({error: "Rota não encontrada."});
 });
 
 app.use((error, request, response, next) => {
-	console.error(error);
 	if (error instanceof SyntaxError) {
 		return response.status(400).json({error: "JSON inválido na requisição."});
 	}
+	if (Number.isInteger(error.statusCode)) {
+		return response.status(error.statusCode).json({error:error.message});
+	}
+	if (error.code === "P2002") {
+		return response.status(409).json({error:"Já existe um registro com esses dados únicos."});
+	}
+	if (error.code === "P2004" && String(error.message).includes("reviews_rating_range_check")) {
+		return response.status(400).json({error:"A nota da avaliação deve ser um número inteiro entre 1 e 5."});
+	}
+	if (error.code === "P2025") {
+		return response.status(404).json({error:"Registro não encontrado."});
+	}
+	if (String(error.message).includes("reservations_no_confirmed_overlap")) {
+		return response.status(409).json({error:"A vaga já tem uma reserva confirmada neste intervalo."});
+	}
+	if (String(error.message).includes("reservations_valid_interval_check") ||
+		String(error.message).includes("reviews_rating_range_check")) {
+		return response.status(400).json({error:"Os dados enviados não atendem às regras de intervalo ou avaliação."});
+	}
+	if (error.code === "P2003" || error.code === "P2004" || error.code === "P2014" || error.code === "23P01") {
+		return response.status(409).json({error:"A operação viola uma regra de integridade do banco de dados."});
+	}
+	console.error(error);
 	response.status(500).json({error: "Erro interno do servidor."});
 });
 
 if (require.main === module) {
-	app.listen(port, () => {
+	const start = () => app.listen(port, () => {
 		console.log(`FluxoPark API disponível em http://localhost:${port}`);
 	});
+	if (prisma) {
+		prisma.$connect().then(() => {
+			const {completeElapsedReservations} = require("./reservationJobs");
+			completeElapsedReservations(prisma).then(completed => {
+				if (completed) console.log(`${completed} reserva(s) concluída(s) automaticamente.`);
+			}).catch(error => console.error("Falha na conclusão automática inicial das reservas.", error));
+			reservationCompletionTimer = setInterval(() => {
+				completeElapsedReservations(prisma).catch(error => console.error("Falha ao concluir reservas expiradas.", error));
+			}, 60_000);
+			reservationCompletionTimer.unref();
+			start();
+		}).catch(error => {
+			console.error("Não foi possível conectar a API ao PostgreSQL.", error);
+			process.exitCode = 1;
+		});
+	} else {
+		start();
+	}
 }
 
 module.exports = app;

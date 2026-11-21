@@ -133,7 +133,7 @@ function RequestTreatmentPage() {
 					{item.status === "pending" && <div className="mt-4 flex flex-wrap gap-3"><button onClick={() => processPartnerRequest(item, true)} className="min-h-10 rounded-lg bg-[#6250b5] px-4 text-sm font-semibold text-white">Aprovar e criar conta</button><button onClick={() => processPartnerRequest(item, false)} className="min-h-10 rounded-lg border border-red-200 px-4 text-sm font-semibold text-red-700">Recusar</button></div>}
 				</article>)}{requests.length === 0 && <p className="rounded-xl border border-dashed border-[#d9dee8] bg-white px-4 py-10 text-center text-sm text-[#68738a]">Nenhuma solicitação de parceria recebida.</p>}</div>
 			</section>
-			<p className="mt-8 rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-4 py-3 text-xs leading-5 text-[#785713]">Protótipo local: as rotas do json-server não aplicam autorização; em produção, a gestão e os banimentos precisam ser protegidos por um backend com autenticação.</p>
+			<p className="mt-8 rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-4 py-3 text-xs leading-5 text-[#785713]">Protótipo local: as rotas da API ainda não aplicam autorização completa; em produção, a gestão e os banimentos precisam ser protegidos por um backend com autenticação.</p>
 		</main>
 	</div>;
 }

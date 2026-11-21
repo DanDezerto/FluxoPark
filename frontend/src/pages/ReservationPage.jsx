@@ -102,7 +102,7 @@ import "../../paginaReserva.css";
 				? `Este estabelecimento está temporariamente indisponível${parking.banUntil ? ` até ${new Intl.DateTimeFormat("pt-BR").format(new Date(parking.banUntil))}` : " por tempo indeterminado"}.`
 				: !isLoading && !apiError && !parking
 				? placeId
-					? "Este estacionamento ainda não está cadastrado na API local. Cadastre o ID do Google Maps no db.json para habilitar reservas."
+					? "Este estacionamento ainda não está cadastrado no banco de dados do FluxoPark. Escolha um estacionamento listado na busca."
 					: "Nenhum estacionamento foi encontrado na API local."
 				: apiError;
 			const parkingName = parking?.name || params.get("name") || "Estacionamento";

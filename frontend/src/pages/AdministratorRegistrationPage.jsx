@@ -56,7 +56,7 @@ function AdministratorRegistrationPage() {
 					<label className="grid gap-1.5 text-sm font-semibold" htmlFor="admin-confirm">Confirmar senha<input id="admin-confirm" name="confirmPassword" type="password" required minLength={8} autoComplete="new-password" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 font-normal" /></label>
 					<label className="grid gap-1.5 text-sm font-semibold" htmlFor="admin-code">Código de administrador<input id="admin-code" name="registrationCode" type="password" required autoComplete="off" className="min-h-11 rounded-lg border border-[#d9dee8] px-3 font-normal" /></label>
 					{error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">{error}</p>}
-					<p role="note" className="rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-3 py-2.5 text-xs leading-5 text-[#785713]">Protótipo local: o json-server não oferece autenticação/autorização completa. Use apenas dados fictícios.</p>
+					<p role="note" className="rounded-lg border border-[#f1dfae] bg-[#fff9e9] px-3 py-2.5 text-xs leading-5 text-[#785713]">Protótipo local: o fluxo de acesso não substitui autenticação e autorização completas. Use apenas dados fictícios.</p>
 					<button disabled={saving} className="min-h-12 rounded-lg bg-[#6250b5] px-5 py-3 text-sm font-semibold text-white disabled:opacity-60">{saving ? "Verificando..." : "Criar conta administrativa"}</button>
 				</form>
 			</section>

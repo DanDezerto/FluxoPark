@@ -8,6 +8,70 @@ import {getHourlyRate} from "../lib/parkingPricing.js";
 import {getSpotFeatures, SPOT_FEATURES, toggleSpotFeature} from "../lib/spotFeatures.js";
 import "../../paginaInicialMotorista-react.css";
 
+		const PARKING_SEARCH_RADIUS_METERS = 4000;
+		const WEEKDAYS = ["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"];
+
+		function coordinates(location) {
+			return {
+				lat:typeof location?.lat === "function" ? location.lat() : Number(location?.lat),
+				lng:typeof location?.lng === "function" ? location.lng() : Number(location?.lng)
+			};
+		}
+
+		function distanceBetween(first, second) {
+			first = coordinates(first);
+			second = coordinates(second);
+			const radians = degrees => degrees * Math.PI / 180;
+			const latitudeDifference = radians(second.lat - first.lat);
+			const longitudeDifference = radians(second.lng - first.lng);
+			const latitude = radians(first.lat);
+			const otherLatitude = radians(second.lat);
+			const value = Math.sin(latitudeDifference / 2) ** 2 +
+				Math.cos(latitude) * Math.cos(otherLatitude) * Math.sin(longitudeDifference / 2) ** 2;
+			return 6371000 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+		}
+
+		function openingHoursDescription(openingHours) {
+			return Object.entries(openingHours || {}).flatMap(([weekday,hours]) =>
+				hours?.open && hours?.close ? [`${WEEKDAYS[Number(weekday)]}: ${hours.open}–${hours.close}`] : []
+			);
+		}
+
+		function databaseParkingOptions(parkings, spots) {
+			return parkings
+				.filter(parking => parking.partner && !(parking.banned && (!parking.banUntil || new Date(parking.banUntil) > new Date())))
+				.map(parking => {
+					const parkingSpots = spots.filter(spot => spot.parkingId === parking.id);
+					const features = [...new Set(parkingSpots.flatMap(getSpotFeatures))];
+					const hourlyRate = parkingSpots
+						.flatMap(spot => getSpotFeatures(spot).map(feature => getHourlyRate(parking.hourlyRates, feature, 1)))
+						.filter(rate => Number.isFinite(rate) && rate > 0)
+						.sort((first, second) => first - second)[0] || 0;
+					const location = parking.location && Number.isFinite(Number(parking.location.lat)) && Number.isFinite(Number(parking.location.lng))
+						? {lat:Number(parking.location.lat),lng:Number(parking.location.lng)}
+						: null;
+					return {
+						id:parking.id,
+						parkingId:parking.id,
+						name:parking.name,
+						address:parking.address,
+						location,
+						phone:parking.phone,
+						openingHours:openingHoursDescription(parking.openingHours),
+						walkingMinutes:Number.MAX_SAFE_INTEGER,
+						distanceMeters:Number.MAX_SAFE_INTEGER,
+						rating:Number(parking.rating) || 0,
+						reviewCount:Number(parking.reviewCount) || 0,
+						hourlyRate,
+						features,
+						priceLevel:0,
+						partner:parking.partner,
+						source:"database",
+						detailsLoaded:true
+					};
+				});
+		}
+
 		function App() {
 			const queryClient = useQueryClient();
 			const [query, setQuery] = React.useState("");
@@ -16,7 +80,7 @@ import "../../paginaInicialMotorista-react.css";
 			const [sort, setSort] = React.useState("distance");
 			const [selected, setSelected] = React.useState(null);
 			const [menuOpen, setMenuOpen] = React.useState(false);
-			const [status, setStatus] = React.useState("Digite um destino para encontrar estacionamentos próximos.");
+			const [status, setStatus] = React.useState("Carregando estacionamentos cadastrados no banco...");
 			const [options, setOptions] = React.useState([]);
 			const [mapReady, setMapReady] = React.useState(false);
 			const [mapsError, setMapsError] = React.useState("");
@@ -32,7 +96,7 @@ import "../../paginaInicialMotorista-react.css";
 			const destinationRef = React.useRef(null);
 			const requestIdRef = React.useRef(0);
 			const shownOptions = React.useMemo(() => options
-				.filter(option => option.source !== "local" || selectedFeatures.every(feature => option.features.includes(feature)))
+				.filter(option => selectedFeatures.every(feature => option.features.includes(feature)))
 				.sort((a, b) => sort === "rating" ? b.rating - a.rating : sort === "price" ? (a.hourlyRate ?? a.priceLevel ?? 99) - (b.hourlyRate ?? b.priceLevel ?? 99) : a.distanceMeters - b.distanceMeters), [options, selectedFeatures, sort]);
 
 			React.useEffect(() => {
@@ -91,7 +155,9 @@ import "../../paginaInicialMotorista-react.css";
 				routeLinesRef.current = [];
 				routesByIdRef.current.clear();
 				if (destinationMarkerRef.current) destinationMarkerRef.current.setMap(null);
-				destinationMarkerRef.current = new google.maps.Marker({map:mapRef.current, position:destination, title:"Seu destino", icon:{path:google.maps.SymbolPath.CIRCLE, scale:10, fillColor:"#ef4444", fillOpacity:1, strokeColor:"#fff", strokeWeight:3}});
+				if (destination) {
+					destinationMarkerRef.current = new google.maps.Marker({map:mapRef.current, position:destination, title:"Seu destino", icon:{path:google.maps.SymbolPath.CIRCLE, scale:10, fillColor:"#ef4444", fillOpacity:1, strokeColor:"#fff", strokeWeight:3}});
+				}
 				places.forEach((place, index) => {
 					const marker = new google.maps.Marker({map:mapRef.current, position:place.location, title:place.partner ? `${place.name} (parceiro)` : place.name, label:{text:String(index + 1), color:"#fff", fontWeight:"700"}, icon:{path:google.maps.SymbolPath.CIRCLE, scale:10, fillColor:place.partner ? "#7c3aed" : "#416cf2", fillOpacity:1, strokeColor:"#fff", strokeWeight:3}});
 					marker.addListener("click", () => {
@@ -101,55 +167,47 @@ import "../../paginaInicialMotorista-react.css";
 					markersRef.current.push(marker);
 				});
 				const bounds = new google.maps.LatLngBounds();
-				bounds.extend(destination);
+				if (destination) bounds.extend(destination);
 				places.forEach(place => bounds.extend(place.location));
-				mapRef.current.fitBounds(bounds, 48);
+				if (places.length || destination) mapRef.current.fitBounds(bounds, 48);
 			}
 
 			async function searchAround(location, label) {
 				if (!placesRef.current || !routesRef.current || !mapRef.current) throw new Error("O Google Maps ainda está carregando. Tente novamente em instantes.");
 				const requestId = ++requestIdRef.current;
-				const {places} = await placesRef.current.searchNearby({
-					fields:["displayName","formattedAddress","location","rating","priceLevel","id","googleMapsURI"],
-					locationRestriction:{center:location, radius:4000},
-					includedPrimaryTypes:["parking"],
-					maxResultCount:10,
-					rankPreference:"DISTANCE"
-				});
-				if (!places?.length) throw new Error("Nenhum estacionamento encontrado em até 4 km do destino.");
+				const [parkings,spots] = await Promise.all([
+					queryClient.fetchQuery({queryKey:["parkings"],queryFn:() => readCollection("parkings")}),
+					queryClient.fetchQuery({queryKey:["spots"],queryFn:() => readCollection("spots")})
+				]);
+				const candidates = databaseParkingOptions(parkings,spots)
+					.filter(option => option.location && distanceBetween(option.location,location) <= PARKING_SEARCH_RADIUS_METERS);
+				if (!candidates.length) throw new Error("Nenhum estacionamento cadastrado no banco foi encontrado em até 4 km do destino.");
 				let routeFailures = 0;
-				const results = await Promise.all(places.filter(place => place.location).map(async place => {
-					let distanceMeters = Number.MAX_SAFE_INTEGER;
+				const results = await Promise.all(candidates.map(async option => {
+					const straightLineDistance = distanceBetween(option.location,location);
+					let distanceMeters = Math.round(straightLineDistance);
 					let walkingMinutes = Number.MAX_SAFE_INTEGER;
 					try {
-						const result = await routesRef.current.computeRoutes({origin:place.location, destination:location, travelMode:"WALKING", fields:["distanceMeters","durationMillis","path","viewport"]});
+						const result = await routesRef.current.computeRoutes({origin:option.location, destination:location, travelMode:"WALKING", fields:["distanceMeters","durationMillis","path","viewport"]});
 						const route = result.routes?.[0];
 						if (route) {
 							distanceMeters = route.distanceMeters;
 							walkingMinutes = Math.max(1, Math.round(route.durationMillis / 60000));
-							routesByIdRef.current.set(place.id, route);
+							routesByIdRef.current.set(option.id, route);
+						} else {
+							routeFailures += 1;
 						}
 					} catch(error) {
 						routeFailures += 1;
-						console.warn(`Não foi possível calcular a rota a pé para ${typeof place.displayName === "string" ? place.displayName : place.displayName?.text || "um estacionamento"}.`, error);
+						console.warn(`Não foi possível calcular a rota a pé para ${option.name}.`, error);
 					}
-					const priceLevels = {PRICE_LEVEL_INEXPENSIVE:1,PRICE_LEVEL_MODERATE:2,PRICE_LEVEL_EXPENSIVE:3,PRICE_LEVEL_VERY_EXPENSIVE:4};
 					return {
-						id:place.id,
-						name:(typeof place.displayName === "string" ? place.displayName : place.displayName?.text) || "Estacionamento",
-						address:place.formattedAddress || "Endereço indisponível",
-						location:place.location,
+						...option,
 						walkingMinutes,
-						distanceMeters,
-						rating:place.rating || 0,
-						priceLevel:priceLevels[place.priceLevel] || 0,
-						partner:Array.isArray(window.FLUXOPARK_CONFIG?.googleMapsPartnerPlaceIds) && window.FLUXOPARK_CONFIG.googleMapsPartnerPlaceIds.includes(place.id),
-						place,
-						googleMapsURI:place.googleMapsURI
+						distanceMeters
 					};
 				}));
 				if (requestId !== requestIdRef.current) return;
-				if (!results.length) throw new Error("Os resultados encontrados não têm localização válida.");
 				optionsRef.current = results;
 				setOptions(results);
 				destinationRef.current = location;
@@ -160,48 +218,38 @@ import "../../paginaInicialMotorista-react.css";
 			}
 			const optionsRef = React.useRef([]);
 
-			async function loadLocalParkings() {
-				setStatus("Carregando estacionamentos cadastrados no json-server...");
+			async function loadDatabaseParkings() {
+				setStatus("Carregando estacionamentos cadastrados no banco...");
 				try {
 					const [parkings, spots] = await Promise.all([
 						queryClient.fetchQuery({queryKey:["parkings"], queryFn:() => readCollection("parkings")}),
 						queryClient.fetchQuery({queryKey:["spots"], queryFn:() => readCollection("spots")})
 					]);
-					const localOptions = parkings.filter(parking => parking.partner && !(parking.banned && (!parking.banUntil || new Date(parking.banUntil) > new Date()))).map(parking => ({
-						id:parking.googlePlaceId || parking.id,
-						parkingId:parking.id,
-						name:parking.name,
-						address:parking.address,
-						walkingMinutes:Number.MAX_SAFE_INTEGER,
-						distanceMeters:Number.MAX_SAFE_INTEGER,
-						rating:parking.rating || 0,
-						hourlyRate:getHourlyRate(parking.hourlyRates, "Descoberta", 1) ||
-							getHourlyRate(parking.hourlyRates, "Coberta", 1) ||
-							getHourlyRate(parking.hourlyRates, "Especial", 1) || 0,
-						features:[...new Set(spots.filter(spot => spot.parkingId === parking.id).flatMap(getSpotFeatures))],
-						priceLevel:0,
-						partner:true,
-						source:"local"
-					}));
-					optionsRef.current = localOptions;
-					setOptions(localOptions);
-					setDestinationName("Estacionamentos do json-server");
+					const databaseOptions = databaseParkingOptions(parkings,spots);
+					optionsRef.current = databaseOptions;
+					setOptions(databaseOptions);
+					setDestinationName("");
 					setSelected(null);
 					destinationRef.current = null;
-					markersRef.current.forEach(marker => marker.setMap(null));
-					markersRef.current = [];
-					routeLinesRef.current.forEach(line => line.setMap(null));
-					routeLinesRef.current = [];
-					if (destinationMarkerRef.current) destinationMarkerRef.current.setMap(null);
-					destinationMarkerRef.current = null;
-					setStatus(localOptions.length
-						? `${localOptions.length} parceiro(s) cadastrado(s) na API local. Distâncias não filtradas pelo destino.`
-						: "A API local não possui estacionamentos parceiros cadastrados.");
+					if (mapRef.current) updateMapMarkers(databaseOptions.filter(option => option.location), null);
+					setStatus(databaseOptions.length
+						? `${databaseOptions.length} estacionamento(s) parceiro(s) carregado(s) do banco. Informe um destino para calcular proximidade e rotas.`
+						: "O banco ainda não possui estacionamentos parceiros ativos com vagas.");
 				} catch(error) {
-					console.error("Não foi possível carregar os estacionamentos do json-server.", error);
-					setStatus(`${error.message || "Falha ao consultar a API local."} Inicie o servidor com npm.cmd start.`);
+					console.error("Não foi possível carregar os estacionamentos do banco.", error);
+					setStatus(`Falha ao carregar estacionamentos: ${error.message || "erro ao consultar a API local."} Verifique se a API e o PostgreSQL estão ativos.`);
 				}
 			}
+
+			React.useEffect(() => {
+				void loadDatabaseParkings();
+			}, []);
+
+			React.useEffect(() => {
+				if (mapReady && !destinationRef.current && options.length) {
+					updateMapMarkers(options.filter(option => option.location), null);
+				}
+			}, [mapReady,options]);
 
 			async function submitSearch(event) {
 				event.preventDefault();
@@ -209,11 +257,7 @@ import "../../paginaInicialMotorista-react.css";
 				if (!destination) return;
 				setSelected(null);
 				if (!mapReady) {
-					if (window.FLUXOPARK_CONFIG?.googleMapsApiKey) {
-						setStatus(mapsError || "O Google Maps ainda está carregando. Tente novamente em instantes.");
-						return;
-					}
-					await loadLocalParkings();
+					setStatus("Os estacionamentos cadastrados continuam disponíveis. Configure o Google Maps para localizar destinos e calcular rotas.");
 					return;
 				}
 				setStatus("Procurando o destino e estacionamentos próximos...");
@@ -237,7 +281,7 @@ import "../../paginaInicialMotorista-react.css";
 			}
 
 			function showRoute(option) {
-				if (option.source === "local" || !option.location || !mapRef.current || !destinationRef.current) return;
+				if (!option.location || !mapRef.current || !destinationRef.current) return;
 				routeLinesRef.current.forEach(line => line.setMap(null));
 				routeLinesRef.current = [];
 				const route = routesByIdRef.current.get(option.id);
@@ -309,9 +353,7 @@ import "../../paginaInicialMotorista-react.css";
 			}
 
 			function reservationUrl(option) {
-				const params = option.source === "local" && option.parkingId
-					? new URLSearchParams({parkingId:option.parkingId})
-					: new URLSearchParams({placeId:option.id, name:option.name, address:option.address});
+				const params = new URLSearchParams({parkingId:option.parkingId});
 				return `paginaReserva.html?${params.toString()}`;
 			}
 
@@ -335,7 +377,6 @@ import "../../paginaInicialMotorista-react.css";
 							<div className="flex items-start justify-between border-b border-[#e5e7eb] pb-4">
 								<div><p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#416cf2]">Busca inteligente</p><h1 id="results-title" className="font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">Estacionamentos <span className="text-[#416cf2]">próximos</span></h1></div>
 							</div>
-							<button type="button" onClick={loadLocalParkings} className="mt-3 min-h-10 self-start rounded-lg border border-[#7c3aed] px-3 py-2 text-xs font-semibold text-[#6236bc] transition hover:bg-[#faf8ff] focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/30">Testar estacionamentos do json-server</button>
 							<fieldset className="mt-3 flex flex-wrap items-center gap-2">
 								<legend className="sr-only">Filtrar por características da vaga</legend>
 								<span className="text-xs font-semibold text-[#526079]">Vagas com tags:</span>
@@ -360,14 +401,14 @@ import "../../paginaInicialMotorista-react.css";
 									onSelect={() => toggleSelection(option)}
 									reservationHref={reservationUrl(option)}
 								/>)}
-								{shownOptions.length === 0 && <div className="rounded-xl border border-dashed border-[#d7dce6] px-4 py-9 text-center text-sm text-[#68738a]">Digite um destino acima para encontrar estacionamentos próximos.</div>}
+								{shownOptions.length === 0 && <div className="rounded-xl border border-dashed border-[#d7dce6] px-4 py-9 text-center text-sm text-[#68738a]">{options.length ? "Nenhum estacionamento do banco corresponde aos filtros selecionados." : status.startsWith("Falha") ? "Não foi possível carregar os estacionamentos. Confira a API e o PostgreSQL." : "Carregando os estacionamentos cadastrados no banco..."}</div>}
 							</div>
-							<div className="mt-auto flex items-center gap-2 border-t border-[#e5e7eb] pt-3 text-[11px] text-[#758098]"><span className={`h-2 w-2 rounded-full ${mapReady ? "bg-[#17a66a]" : "bg-[#f5c84b]"}`}></span>{mapReady ? status : mapsError || status}</div>
+							<div className="mt-auto flex items-center gap-2 border-t border-[#e5e7eb] pt-3 text-[11px] text-[#758098]"><span className={`h-2 w-2 rounded-full ${status.includes("Falha") ? "bg-red-500" : "bg-[#17a66a]"}`}></span>{status}</div>
 						</section>
 
 						<section aria-label="Mapa dos estacionamentos" className="order-1 min-w-0 lg:order-2">
 							<div className="flex h-12 items-center justify-between rounded-t-xl border border-[#dedfe4] bg-[#f0eff0] px-4">
-								<div className="flex items-center gap-2.5 font-display text-sm font-semibold text-[#303b50] sm:text-base"><span className="text-xl text-[#4285f4]">◆</span> Fornecido por Google Maps</div>
+								<div className="flex items-center gap-2.5 font-display text-sm font-semibold text-[#303b50] sm:text-base"><span className="text-xl text-[#4285f4]">◆</span> {mapReady ? "Rotas do Google Maps" : "Mapa de referência"}</div>
 								<button type="button" onClick={useMyLocation} aria-label="Usar minha localização" title="Usar minha localização" className="grid h-8 w-8 place-items-center rounded-lg border border-[#d8dbe2] bg-white text-lg text-[#33415f] transition hover:border-[#416cf2] hover:text-[#416cf2]">◎</button>
 							</div>
 							<div className="map-grid relative h-[320px] overflow-hidden border-x border-b border-[#dedfe4] sm:h-[390px] lg:h-[min(60vh,570px)] lg:min-h-[430px]">
@@ -383,8 +424,8 @@ import "../../paginaInicialMotorista-react.css";
 								<div className="pointer-events-none absolute bottom-4 left-4 z-10 rounded-lg border border-white/70 bg-white/95 px-3.5 py-2.5 shadow-lg backdrop-blur-sm"><strong className="block font-display text-xs text-[#172749]">{destinationName || "Digite um destino para começar"}</strong><span className="mt-0.5 block text-[11px] text-[#68738a]">{destinationRef.current ? "Google Maps" : "Prévia ilustrativa do mapa"}</span></div>
 								{!mapReady && <div className="absolute right-3 top-3 z-10 flex flex-col overflow-hidden rounded-lg border border-[#d6d8de] bg-white shadow-sm"><button type="button" aria-label="Aproximar mapa" className="h-9 w-9 border-b border-[#e5e7eb] text-xl text-[#46536d] hover:bg-[#f4f6fa]">+</button><button type="button" aria-label="Afastar mapa" className="h-9 w-9 text-xl text-[#46536d] hover:bg-[#f4f6fa]">−</button></div>}
 							</div>
-							<div className="flex flex-wrap items-center gap-x-5 gap-y-2 py-3 text-[11px] text-[#68738a]"><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-[#ef4444]"></i>Destino</span><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-[#416cf2]"></i>Estacionamento</span><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-[#7c3aed]"></i>Parceiro</span><span className="ml-auto text-[#9098a8]">{mapReady ? "Powered by Google" : "Mapa ilustrativo"}</span></div>
-							{mapsError && <div role="status" className="rounded-lg bg-[#fff7e8] px-3 py-2 text-xs text-[#815b12]">{mapsError}</div>}
+							<div className="flex flex-wrap items-center gap-x-5 gap-y-2 py-3 text-[11px] text-[#68738a]"><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-[#ef4444]"></i>Destino</span><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-[#416cf2]"></i>Estacionamento</span><span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-[#7c3aed]"></i>Parceiro</span><span className="ml-auto text-[#9098a8]">{mapReady ? "Google Maps opcional" : "Configure o Maps para ver rotas"}</span></div>
+							{mapsError && <div role="status" className="rounded-lg bg-[#fff7e8] px-3 py-2 text-xs text-[#815b12]">A busca e as reservas continuam disponíveis. {mapsError}</div>}
 						</section>
 					</main>
 				</div>
